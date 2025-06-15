@@ -11,17 +11,22 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "framer-motion": "^12.18.1",
+    "js-cookie": "^3.0.5",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-leaflet": "^2.8.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4",

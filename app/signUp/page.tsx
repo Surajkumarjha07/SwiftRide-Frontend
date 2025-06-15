@@ -4,11 +4,43 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 
 export default function SignUp() {
-    const [logInType, setLogInType] = useState<string>("user");
+    const [role, setRole] = useState<string>("user");
 
     const changeSignUpType = (e: React.MouseEvent, type: string) => {
         e.preventDefault();
-        setLogInType(type);
+        setRole(type);
+    }
+
+    const signUp = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const target = e.target as HTMLFormElement;
+            const formData = new FormData(target);
+            formData.append("role", role);
+            const formBody = Object.fromEntries(formData.entries());
+
+            if (!formData.get('email')) {
+                alert("enter email")
+                return;
+            }
+
+            const url = role === "user" ? "http://localhost:4000/user/actions/sign-up" : "http://localhost:4000/captain/actions/registerCaptain";
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formBody)
+            })
+
+            if (response.ok) {
+                alert("Congrats! registered successfully");
+            }
+
+        } catch (error) {
+            alert("Internal server error!");
+        }
     }
 
     return (
@@ -19,20 +51,20 @@ export default function SignUp() {
                         Join as a&nbsp;
                         <AnimatePresence mode="wait">
                             <motion.span
-                                key={logInType}
+                                key={role}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.3 }}
                                 className="inline-block"
                             >
-                                {logInType === "user" ? "User!" : "Captain!"}
+                                {role === "user" ? "User!" : "Captain!"}
                             </motion.span>
                             !
                         </AnimatePresence>
                         <br />
                         <span className="text-yellow-500">Sign up</span>
-                        &nbsp;to unlock smooth and reliable ride-sharing experiences.
+                        &nbsp;to unlock smooth and reliable ride-sharing experiences
                     </p>
 
 
@@ -46,18 +78,18 @@ export default function SignUp() {
                 </aside>
 
                 <aside className='w-1/2 h-screen flex justify-center items-center'>
-                    <form method='post' className='bg-white relative mx-auto h-fit mt-12 w-3/5 px-10 pt-4 pb-8 rounded-xl shadow-2xl shadow-gray-300'>
+                    <form method='post' className='bg-white relative mx-auto h-fit mt-12 w-3/5 px-10 pt-4 pb-8 rounded-xl shadow-md shadow-gray-300' onSubmit={e => signUp(e)}>
                         <fieldset>
                             <div className='w-full relative'>
-                                <button className={`${logInType === "user" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeSignUpType(e, "user")}>
+                                <button className={`${role === "user" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeSignUpType(e, "user")}>
                                     User
                                 </button>
 
-                                <button className={`${logInType === "captain" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeSignUpType(e, "captain")}>
+                                <button className={`${role === "captain" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeSignUpType(e, "captain")}>
                                     Captain
                                 </button>
 
-                                <div className={`w-1/2 h-[3px] bg-gray-900 rounded-md ${logInType == "user" ? "-translate-x-0" : "translate-x-full"} transition-all duration-200`} />
+                                <div className={`w-1/2 h-[3px] bg-gray-900 rounded-md ${role == "user" ? "-translate-x-0" : "translate-x-full"} transition-all duration-200`} />
                             </div>
 
                             <div className='my-6'>
