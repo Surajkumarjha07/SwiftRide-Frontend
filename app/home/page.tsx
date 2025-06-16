@@ -1,6 +1,9 @@
 'use client'
+import { section } from 'framer-motion/client';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
+import SearchBar from '../components/searchBar';
+import Profile from '../components/profile';
 
 type coord = {
     latitude?: number,
@@ -34,11 +37,16 @@ export default function UserHomePage() {
     }, [])
 
     return (
-        <>{
-            coordinates == null ?
-                null :
-                <Map position={[coordinates?.latitude, coordinates?.longitude]} zoom={10} />
-        }
+        <>
+            <section>
+                <Profile/>
+                <SearchBar/>
+                {
+                    coordinates == null ?
+                        null :
+                        <Map position={[coordinates?.latitude, coordinates?.longitude]} zoom={10} />
+                }
+            </section>
         </>
     );
 }
