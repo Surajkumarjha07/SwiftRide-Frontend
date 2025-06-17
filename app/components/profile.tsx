@@ -1,17 +1,19 @@
-import React from 'react'
+import React from 'react';
+import { useAppDispatch } from '../redux/hooks';
+import { setIsProfileOpen } from '../redux/slices/profile';
 
 export default function Profile() {
-    return (
-        <>
-            <section className='bg-white absolute top-3 right-0 z-50 flex justify-center items-center gap-4 px-6 py-3 rounded-l-2xl'>
-            
-                <div className='w-14 h-14 rounded-full bg-red-400 flex justify-center items-center'>
-                    <p className='font-medium text-2xl'>
-                        Y
-                    </p>
-                </div>
+    const dispatch = useAppDispatch();
 
-            </section>
-        </>
-    )
+    return (
+        <section className="absolute top-3 right-5 z-30 bg-white shadow-lg rounded-2xl px-6 py-4 w-fit flex gap-4 items-center">
+
+            <div className="profile w-14 h-14 rounded-full bg-gradient-to-tr from-red-400 to-red-600 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
+                <p className='pointer-events-none'>
+                    Y
+                </p>
+            </div>
+
+        </section>
+    );
 }

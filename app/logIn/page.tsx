@@ -95,7 +95,7 @@ export default function LogIn() {
         <>
             <section className='w-screen h-screen flex justify-center items-center bg-gradient-to-b from-yellow-300 to-white'>
                 <aside className="w-1/2 h-screen flex flex-col justify-center gap-6 px-20">
-                    <p className="text-5xl font-bold text-gray-950 leading-tight">
+                    <p className="text-5xl font-bold text-gray-900 leading-tight">
                         Welcome back,
                         <AnimatePresence mode="wait">
                             <motion.span
@@ -118,7 +118,7 @@ export default function LogIn() {
                     <p className="text-xl text-gray-700 font-medium">
                         New to the platform?
                         <Link href="/signUp">
-                            <span className="text-gray-950 font-bold underline"> Sign Up</span>
+                            <span className="text-gray-900 font-bold underline"> Sign Up</span>
                         </Link>
                     </p>
 
@@ -128,19 +128,19 @@ export default function LogIn() {
                     <form method='post' className='bg-white relative mx-auto h-fit mt-12 w-3/5 px-10 pt-4 pb-8 rounded-xl shadow-md shadow-gray-300' onSubmit={(e) => logIn(e)}>
                         <fieldset>
                             <div className='w-full relative'>
-                                <button className={`${role === "user" ? "text-gray-950" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeLogInType(e, "user")}>
+                                <button className={`${role === "user" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeLogInType(e, "user")}>
                                     User
                                 </button>
 
-                                <button className={`${role === "captain" ? "text-gray-950" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeLogInType(e, "captain")}>
+                                <button className={`${role === "captain" ? "text-gray-900" : "text-gray-500"} rounded-t-md w-1/2 py-3 font-medium`} onClick={(e) => changeLogInType(e, "captain")}>
                                     Captain
                                 </button>
 
-                                <div className={`w-1/2 h-[3px] bg-gray-950 rounded-md ${role == "user" ? "-translate-x-0" : "translate-x-full"} transition-all duration-200`} />
+                                <div className={`w-1/2 h-[3px] bg-gray-900 rounded-md ${role == "user" ? "-translate-x-0" : "translate-x-full"} transition-all duration-200`} />
                             </div>
 
                             <div className='my-6'>
-                                <p className='text-center font-bold text-2xl text-gray-950'>Login to Account</p>
+                                <p className='text-center font-bold text-2xl text-gray-900'>Login to Account</p>
                                 <p className='text-center text-xs text-gray-500 my-2'>Please enter your email and password to continue</p>
                             </div>
 
@@ -155,7 +155,7 @@ export default function LogIn() {
                                 <input type='password' placeholder='......' name='password' className='h-12 mt-2 px-3 w-full placeholder:text-7xl border-2 border-gray-200 rounded-md outline-none' onChange={e => setPassword(e.target.value)} />
 
                                 <div className='text-center mt-8'>
-                                    <input type='submit' className={`w-full cursor-pointer ${submitClicked ? "bg-gray-900" : "bg-gray-950"} rounded-lg py-3 text-white font-semibold`} value={submitClicked ? "Signing In..." : "Sign In"} />
+                                    <input type='submit' className={`w-full cursor-pointer ${submitClicked ? "bg-gray-800" : "bg-gray-900"} rounded-lg py-3 text-white font-semibold`} value={submitClicked ? "Signing In..." : "Sign In"} />
                                 </div>
 
                             </div>
