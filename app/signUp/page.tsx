@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { toast } from 'react-toastify';
+import signUpService from '../services/signUp.service';
 
 export default function SignUp() {
     const [role, setRole] = useState<string>("user");
@@ -35,17 +36,7 @@ export default function SignUp() {
                 return;
             }
 
-            const url = role === "user" ? "http://localhost:4000/user/actions/sign-up" : "http://localhost:4000/captain/actions/registerCaptain";
-
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formBody)
-            })
-
-            const data = await response.json();
+            const { response, data } = await signUpService(formBody, role);
 
             if (response.ok) {
                 toast.success("Congrats! registered successfully", {
@@ -150,7 +141,7 @@ export default function SignUp() {
                                 <input type='password' placeholder='......' name='password' className='h-12 mt-2 px-3 w-full placeholder:text-7xl border-2 border-gray-200 rounded-md outline-none' />
 
                                 <div className='text-center mt-8'>
-                                    <input type='submit' className={`w-full cursor-pointer ${submitClicked ? "bg-gray-900" : "bg-gray-900"} rounded-lg py-3 text-white font-semibold`} value={submitClicked ? "Signing Up..." : "Sign Up"} disabled={submitClicked} />
+                                    <input type='submit' className={`w-full cursor-pointer ${submitClicked ? "bg-gray-800" : "bg-gray-900"} rounded-lg py-3 text-white font-semibold`} value={submitClicked ? "Signing Up..." : "Sign Up"} disabled={submitClicked} />
                                 </div>
 
                             </div>

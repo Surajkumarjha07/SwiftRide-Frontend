@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
 import { useAppDispatch } from '../redux/hooks';
 import { setLogInState } from '../redux/slices/logIn';
+import logInService from '../services/logIn.service';
 
 export default function LogIn() {
     const [role, setRole] = useState<string>("user");
@@ -43,18 +44,7 @@ export default function LogIn() {
             const formBody = Object.fromEntries(formData.entries());
             console.log(formBody);
 
-            const url = role === "user" ? "http://localhost:4000/user/actions/log-in" : "http://localhost:4000/captain/actions/loginCaptain";
-
-            const response = await fetch(url, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formBody)
-            })
-
-            const data = await response.json();
+            const { response, data } = await logInService(formBody, role);
 
             if (response.ok) {
                 Cookies.set("authtoken", data.token, { expires: 1 / 24, path: "/" });

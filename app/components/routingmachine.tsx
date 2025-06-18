@@ -10,13 +10,28 @@ export default function Routingmachine({ source, destination }: any) {
     useEffect(() => {
         if (!map) return;
 
-        L.Routing.control({
-            waypoints: [L.latLng(source[0], source[1]), L.latLng(destination[0], destination[1])],
-            routeWhileDragging: false,
-            show: false,
-        }).addTo(map);
+        let routingControl: any;
 
-    }, [map])
+        const timeout = setTimeout(() => {
+            routingControl = L.Routing.control({
+                waypoints: [L.latLng(source[0], source[1]), L.latLng(destination[0], destination[1])],
+                routeWhileDragging: false,
+                show: false,
+            }).addTo(map);
+        }, 100);
 
-    return null
+        return () => {
+            try {
+                clearTimeout(timeout);
+                if (routingControl) {
+                    routingControl.remove();
+                }
+            } catch (error) {
+                console.warn('Failed to remove routing control:', error);
+            }
+        };
+
+    }, [source, destination, map])
+
+    return null;
 }

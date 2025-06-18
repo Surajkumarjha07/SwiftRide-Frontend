@@ -7,7 +7,7 @@ export default function Home() {
 
       {/* First aside */}
       <aside className="w-1/2 h-screen flex flex-col justify-center gap-6 px-20">
-        <p className="text-5xl font-bold text-gray-950 leading-tight">
+        <p className="text-5xl font-bold text-gray-900 leading-tight">
           Redefining urban travel with
           <br />
           <span className="text-yellow-500">smarter, faster</span> and
@@ -20,13 +20,13 @@ export default function Home() {
 
         <div className="flex gap-4 mt-4">
           <Link href={"/logIn"}>
-            <button className="w-28 py-3 bg-gray-950 text-white font-medium rounded-xl shadow-md hover:bg-gray-800 transition-all duration-200 cursor-pointer">
+            <button className="w-28 py-3 bg-gray-900 text-white font-medium rounded-xl shadow-md hover:bg-gray-800 transition-all duration-200 cursor-pointer">
               Log In
             </button>
           </Link>
 
           <Link href={"/signUp"}>
-            <button className="w-28 py-3 bg-gray-950 text-white font-medium border rounded-xl shadow-md hover:bg-gray-800 transition-all duration-200 cursor-pointer">
+            <button className="w-28 py-3 bg-gray-900 text-white font-medium border rounded-xl shadow-md hover:bg-gray-800 transition-all duration-200 cursor-pointer">
               Sign Up
             </button>
           </Link>

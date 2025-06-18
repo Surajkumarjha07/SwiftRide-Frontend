@@ -23,7 +23,7 @@ export default function UserHomePage() {
             loading: () => <p>A map is loading!</p>,
             ssr: false
         }
-    ), [])
+    ), []);
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -49,7 +49,7 @@ export default function UserHomePage() {
         document.addEventListener("click", handleClick);
 
         return () => document.removeEventListener("click", handleClick);
-    }, [])
+    }, []);
 
     return (
         <>

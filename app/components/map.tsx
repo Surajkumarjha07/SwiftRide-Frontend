@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css"
 import "leaflet-defaulticon-compatibility"
@@ -7,7 +7,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import Routingmachine from './routingmachine'
 
 export default function Map({ position, zoom }: any) {
-
+    
     return (
         <>
             <MapContainer center={position} zoom={zoom} scrollWheelZoom={true} minZoom={3} maxBoundsViscosity={1.0} className='w-screen h-screen z-0'>
