@@ -2,34 +2,49 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from "framer-motion";
-import { useAppDispatch } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import Cookies from 'js-cookie';
-import { setUserEmail, setUserName } from '../redux/slices/userCredentials';
+import { CaptainPayload, UserPayload } from '../types/payloads';
+import { setRole } from '../redux/slices/userCredentials';
 
 export default function ManageAccount() {
     const [submitClicked, setSubmitClicked] = useState<boolean>(false);
     const [action, setAction] = useState<string>("update");
-    const dispatch = useAppDispatch();
     const [email, setEmail] = useState<string>("");
     const [name, setName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [oldPassword, setOldPassword] = useState<string>("");
+    const dispatch = useAppDispatch();
+    const role = useAppSelector(state => state.User.role);
+    const [vehicleType, setVehicleType] = useState("");
+    const [vehicleNo, setVehicleNo] = useState("");
 
     const handleActionType = (e: React.MouseEvent, actionType: string) => {
         e.preventDefault();
         setAction(actionType);
     }
 
-       useEffect(() => {
+    useEffect(() => {
         const fetchedCookie = Cookies.get("authtoken");
 
         if (fetchedCookie) {
             try {
                 const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
-                dispatch(setUserEmail(payload.userEmail));
-                dispatch(setUserName(payload.userName));
-                setEmail(payload.userEmail);
-                setName(payload.userName);
+                console.log(payload);
+
+                if (payload.role === "user") {
+                    setEmail(payload.userEmail);
+                    setName(payload.userName);
+                    dispatch(setRole("user"));
+                }
+
+                else {
+                    setEmail(payload.captainEmail);
+                    setName(payload.captainName);
+                    setVehicleType(payload.vehicleType);
+                    setVehicleNo(payload.vehicleNo);
+                    dispatch(setRole("captain"));
+                }
             } catch (error) {
                 console.error("Error parsing the cookie: ", error);
             }
@@ -80,7 +95,7 @@ export default function ManageAccount() {
                 </aside>
 
                 <aside className='w-1/2 h-screen flex justify-center items-center'>
-                    <form method='post' className='w-md bg-white relative mx-auto h-fit px-10 pt-4 pb-8 rounded-xl shadow-md shadow-gray-300'>
+                    <form method='post' className='w-md bg-gray-100 relative mx-auto h-fit px-10 pt-4 pb-8 rounded-xl shadow-md shadow-gray-300'>
                         <fieldset>
 
                             <div className='w-full relative mb-4'>
@@ -100,26 +115,29 @@ export default function ManageAccount() {
                                 {
                                     action === "update" &&
                                     <>
-                                        <label className='text-sm text-gray-500 font-semibold' htmlFor='email'>Email address </label>
-                                        <br />
                                         <input type='email' placeholder='youremail@gmail.com' name='email' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' autoFocus value={email} onChange={e => setEmail(e.target.value)} />
                                         <br /><br />
 
-                                        <label className='text-sm text-gray-500 font-semibold' htmlFor='name'> Name </label>
-                                        <br />
                                         <input type='name' placeholder='your name' name='name' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' value={name} onChange={e => setName(e.target.value)} />
                                         <br /><br />
 
-                                        <label className='text-sm text-gray-500 font-semibold' htmlFor='new_password'> New Password </label>
-                                        <br />
-                                        <input type='password' placeholder='......' name='new_password' className='h-12 mt-2 px-3 w-full placeholder:text-7xl border-2 border-gray-200 rounded-md outline-none' value={password} onChange={e => setPassword(e.target.value)} />
+                                        {
+                                            role === "captain" &&
+                                            <>
+                                                <input type='text' placeholder='bike, car, ....' name='vehicleType' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' value={vehicleType} onChange={e => setPassword(e.target.value)} />
+                                                <br /> <br />
+
+                                                <input type='text' placeholder='78X.....455' name='vehicleNo' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' value={vehicleNo} onChange={e => setPassword(e.target.value)} />
+                                                <br /> <br />
+                                            </>
+                                        }
+
+                                        <input type='password' placeholder='New Password' name='new_password' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' value={password} onChange={e => setPassword(e.target.value)} />
                                         <br /> <br />
                                     </>
                                 }
 
-                                <label className='text-sm text-gray-500 font-semibold' htmlFor='old_password'>Password </label>
-                                <br />
-                                <input type='password' placeholder='......' name='old_password' className='h-12 mt-2 px-3 w-full placeholder:text-7xl border-2 border-gray-200 rounded-md outline-none' value={oldPassword} onChange={e => setOldPassword(e.target.name)} />
+                                <input type='password' placeholder='Password' name='old_password' className='h-12 mt-2 px-3 w-full placeholder:text-sm border-2 border-gray-200 rounded-md outline-none' value={oldPassword} onChange={e => setOldPassword(e.target.name)} />
 
                                 {
                                     action === "update" ?

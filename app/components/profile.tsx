@@ -14,9 +14,15 @@ export default function Profile() {
         if (fetchedCookie) {   
             try {
                 const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
-                console.log(payload);                
-                dispatch(setUserEmail(payload.userEmail));
-                dispatch(setUserName(payload.userName));
+                if (payload.role === "user") {
+                    dispatch(setUserEmail(payload.userEmail));
+                    dispatch(setUserName(payload.userName));
+                }
+                
+                else{
+                    dispatch(setUserEmail(payload.captainEmail));
+                    dispatch(setUserName(payload.captainName));
+                }
             } catch (error) {
                 console.error("Error parsing the cookie: ", error);
             }
@@ -30,7 +36,7 @@ export default function Profile() {
             <div className="profile w-14 h-14 rounded-full bg-gradient-to-tr from-red-400 to-red-600 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
                 <p className='pointer-events-none'>
                     {
-                        userName.charAt(0).toUpperCase()
+                        userName?.charAt(0).toUpperCase()
                     }
                 </p>
             </div>

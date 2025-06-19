@@ -7,6 +7,8 @@ import AccountCentre from '../components/accountCentre';
 import BlackScreen from '../components/blackScreen';
 import { useAppDispatch } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
+import { useRouter } from 'next/navigation';
+import verifyToken from '../lib/verifyToken';
 
 type coord = {
     latitude?: number,
@@ -16,6 +18,8 @@ type coord = {
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
     const [coordinates, setCoordinates] = useState<coord | null>(null);
+    const [showContent, setShowContent] = useState(false);
+    const router = useRouter();
 
     const Map = useMemo(() => dynamic(
         () => import('../components/map'),
@@ -51,19 +55,38 @@ export default function UserHomePage() {
         return () => document.removeEventListener("click", handleClick);
     }, []);
 
+    const verifyUser = async () => {
+        const response = await verifyToken();
+        
+        if (response.ok) {
+            setShowContent(true);
+        }
+
+        else {
+            setShowContent(false);
+        }
+    }
+
+    useEffect(() => {
+        verifyUser();
+    }, [])
+
     return (
         <>
-            <section>
-                <Profile />
-                <SearchBar />
-                <AccountCentre />
-                <BlackScreen />
-                {
-                    coordinates == null ?
-                        null :
-                        <Map position={[coordinates?.latitude, coordinates?.longitude]} zoom={10} />
-                }
-            </section>
+            {
+                showContent &&
+                <section>
+                    <Profile />
+                    <SearchBar />
+                    <AccountCentre />
+                    <BlackScreen />
+                    {
+                        coordinates == null ?
+                            null :
+                            <Map position={[coordinates?.latitude, coordinates?.longitude]} zoom={10} />
+                    }
+                </section>
+            }
         </>
     );
 }

@@ -19,8 +19,16 @@ export default function AccountCentre() {
         if (fetchedCookie) {
             try {
                 const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
-                dispatch(setUserEmail(payload.userEmail));
-                dispatch(setUserName(payload.userName));
+                if (payload.role === "user") {
+                    dispatch(setUserEmail(payload.userEmail));
+                    dispatch(setUserName(payload.userName));
+                }
+
+                else {
+                    dispatch(setUserEmail(payload.captainEmail));
+                    dispatch(setUserName(payload.captainName));
+                }
+
                 dispatch(setRole(payload.role));
             } catch (error) {
                 console.error("Error parsing the cookie: ", error);
