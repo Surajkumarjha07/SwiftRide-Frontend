@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { store } from "../redux/store";
+import { SocketProvider } from "../contexts/socketContext";
 
 export default function ClientLayout({
     children,
@@ -14,10 +15,12 @@ export default function ClientLayout({
     return (
         <>
             <Provider store={store}>
-                <ToastContainer />
-                {
-                    children
-                }
+                <SocketProvider>
+                    <ToastContainer />
+                    {
+                        children
+                    }
+                </SocketProvider>
             </Provider>
         </>
 

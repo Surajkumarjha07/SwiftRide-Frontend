@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import { UserPayload } from '@/app/types/payloads';
+import { jwtDecode } from 'jwt-decode';
+import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'Unauthorized! token not available' }, { status: 401 });
         }
 
-        const decoded = jwt.decode(token) as UserPayload | null;
+        const decoded = jwtDecode(token) as UserPayload | null;
 
         if (!decoded) {
             return NextResponse.json({ message: 'token not valid!' }, { status: 404 });
