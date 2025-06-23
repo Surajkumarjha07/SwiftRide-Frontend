@@ -9,11 +9,7 @@ import { useAppDispatch } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
 import { useRouter } from 'next/navigation';
 import verifyToken from '../lib/verifyToken';
-
-type coord = {
-    latitude?: number,
-    longitude?: number
-}
+import coord from '../types/coordinates';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
@@ -57,7 +53,7 @@ export default function UserHomePage() {
 
     const verifyUser = async () => {
         const response = await verifyToken();
-        
+
         if (response.ok) {
             setShowContent(true);
         }
@@ -77,7 +73,10 @@ export default function UserHomePage() {
                 showContent &&
                 <section>
                     <Profile />
-                    <SearchBar />
+                    {
+                        coordinates &&
+                        <SearchBar coordinates={coordinates} />
+                    }
                     <AccountCentre />
                     <BlackScreen />
                     {
