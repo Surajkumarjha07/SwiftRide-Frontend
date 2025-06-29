@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
 import Cookies from 'js-cookie';
 import { setUserEmail, setUserName } from '../redux/slices/userCredentials';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Profile() {
     const dispatch = useAppDispatch();
@@ -10,16 +11,16 @@ export default function Profile() {
 
     useEffect(() => {
         const fetchedCookie = Cookies.get("authtoken");
-        
-        if (fetchedCookie) {   
+
+        if (fetchedCookie) {
             try {
-                const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
+                const payload: any = jwtDecode(fetchedCookie);
                 if (payload.role === "user") {
                     dispatch(setUserEmail(payload.userEmail));
                     dispatch(setUserName(payload.userName));
                 }
-                
-                else{
+
+                else {
                     dispatch(setUserEmail(payload.captainEmail));
                     dispatch(setUserName(payload.captainName));
                 }

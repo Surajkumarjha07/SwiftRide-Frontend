@@ -10,12 +10,14 @@ import { setIsProfileOpen } from '../redux/slices/profile';
 import { useRouter } from 'next/navigation';
 import verifyToken from '../lib/verifyToken';
 import coord from '../types/coordinates';
+import { useSocket } from '../contexts/socketContext';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
     const [coordinates, setCoordinates] = useState<coord | null>(null);
     const [showContent, setShowContent] = useState(false);
     const router = useRouter();
+    const socket = useSocket();
 
     const Map = useMemo(() => dynamic(
         () => import('../components/map'),
@@ -24,6 +26,19 @@ export default function UserHomePage() {
             ssr: false
         }
     ), []);
+
+
+    const verifyUser = async () => {
+        const response = await verifyToken();
+
+        if (response.ok) {
+            setShowContent(true);
+        }
+
+        else {
+            setShowContent(false);
+        }
+    }
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -51,21 +66,21 @@ export default function UserHomePage() {
         return () => document.removeEventListener("click", handleClick);
     }, []);
 
-    const verifyUser = async () => {
-        const response = await verifyToken();
-
-        if (response.ok) {
-            setShowContent(true);
-        }
-
-        else {
-            setShowContent(false);
-        }
-    }
-
     useEffect(() => {
         verifyUser();
     }, [])
+
+    const handleFareFetched = ({ userId,  fare}: {userId: string, fare: any}) => {
+        console.log("fare fetched: ", userId, fare );
+    }
+
+    useEffect(() => {
+      socket.on("fare-fetched", handleFareFetched)
+    
+      return () => {
+        socket.off("fare-fetched", handleFareFetched);
+      }
+    }, [socket])    
 
     return (
         <>
