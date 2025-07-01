@@ -8,9 +8,7 @@ export const LogInSlice = createSlice({
     initialState,
     name: "LogIn",
     reducers: {
-        setLogInState: (state, action) => {
-            console.log("log: ", action.payload);
-            
+        setLogInState: (state, action) => {            
             state.isLoggedIn = action.payload;
         }
     }

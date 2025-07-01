@@ -5,12 +5,14 @@ import SearchBar from '../components/searchBar';
 import Profile from '../components/profile';
 import AccountCentre from '../components/accountCentre';
 import BlackScreen from '../components/blackScreen';
-import { useAppDispatch } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
 import { useRouter } from 'next/navigation';
 import verifyToken from '../lib/verifyToken';
 import coord from '../types/coordinates';
 import { useSocket } from '../contexts/socketContext';
+import FaresModal from '../components/faresModal';
+import { setShowFare } from '../redux/slices/showFare';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
@@ -18,6 +20,8 @@ export default function UserHomePage() {
     const [showContent, setShowContent] = useState(false);
     const router = useRouter();
     const socket = useSocket();
+    const [fares, setFares] = useState<{}[]>([]);
+    const showFare = useAppSelector(state => state.Fare.showFare);
 
     const Map = useMemo(() => dynamic(
         () => import('../components/map'),
@@ -70,17 +74,28 @@ export default function UserHomePage() {
         verifyUser();
     }, [])
 
-    const handleFareFetched = ({ userId,  fare}: {userId: string, fare: any}) => {
-        console.log("fare fetched: ", userId, fare );
+    const handleFareFetched = ({ userId, fare }: { userId: string, fare: any }) => {
+        console.log("fare fetched: ", userId, fare);
+        const fares = Object.entries(fare).map(([vehicle, price]) => ({
+            vehicle,
+            price
+        }))
+
+        setFares(fares);
+        dispatch(setShowFare(true));
     }
 
     useEffect(() => {
-      socket.on("fare-fetched", handleFareFetched)
-    
-      return () => {
-        socket.off("fare-fetched", handleFareFetched);
-      }
-    }, [socket])    
+        if (socket) {
+            socket.on("fare-fetched", handleFareFetched)
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("fare-fetched", handleFareFetched);
+            }
+        }
+    }, [socket])
 
     return (
         <>
@@ -93,7 +108,12 @@ export default function UserHomePage() {
                         <SearchBar coordinates={coordinates} />
                     }
                     <AccountCentre />
+                    
                     <BlackScreen />
+                    {
+                        showFare &&
+                        <FaresModal fares={fares} />
+                    }
                     {
                         coordinates == null ?
                             null :

@@ -49,8 +49,5 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useSocket = () => {
     const socket = useContext(SocketContext);
-    if (!socket) {
-        throw new Error("useSocket is not initialized!")
-    }
     return socket;
 }

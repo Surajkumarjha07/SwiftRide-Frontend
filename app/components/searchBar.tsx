@@ -3,7 +3,6 @@ import { Flag, MapPin } from "lucide-react";
 import { toast } from 'react-toastify';
 import getLocationDetails from '../lib/getLocationDetails';
 import axios from 'axios';
-import coord from '../types/coordinates';
 import Cookies from 'js-cookie';
 
 export default memo(function SearchBar({ coordinates }: { coordinates: { latitude: number, longitude: number } }) {
@@ -15,7 +14,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
   async function getCurrentLocation() {
     const locationBody: any = await getLocationDetails(coordinates);
-    const location = (locationBody.road ?? "") + (locationBody.road ? ", " : "") + (locationBody.suburb ?? "") + (locationBody.suburb ? ", " : "") + (locationBody.neighbourhood ?? "") + (locationBody.neighbourhood ? ", ": "") + (locationBody.city ?? "") + (locationBody.city ? ", ": "") + (locationBody.state ?? "") + (locationBody.state ? ", ": "") + (locationBody.postcode ?? "");
+    const location = (locationBody.road ?? "") + (locationBody.road ? ", " : "") + (locationBody.suburb ?? "") + (locationBody.suburb ? ", " : "") + (locationBody.neighbourhood ?? "") + (locationBody.neighbourhood ? ", " : "") + (locationBody.city ?? "") + (locationBody.city ? ", " : "") + (locationBody.state ?? "") + (locationBody.state ? ", " : "") + (locationBody.postcode ?? "");
 
     setLocation(location);
   }
@@ -67,7 +66,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
           }
         }
       }
-    }, 1500);
+    }, 300);
 
   }
 
@@ -75,19 +74,9 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
     e.preventDefault();
 
     try {
-      const locationResponse = await axios.get(`https://us1.locationiq.com/v1/search?key=${process.env.NEXT_PUBLIC_LOCATION_IQ}&q=${location.replace(" ", "%20%")}&format=json&`)
-
-      const destinationResponse = await axios.get(`https://us1.locationiq.com/v1/search?key=${process.env.NEXT_PUBLIC_LOCATION_IQ}&q=${destination}&format=json&`);
-
-      const locationCoord: any = locationResponse.data[0];
-      const destinationCoord: any = destinationResponse.data[0];
-
-      const locationCoordinates: coord = { latitude: locationCoord.lat, longitude: locationCoord.lon };
-      const destinationCoordinates: coord = { latitude: destinationCoord.lat, longitude: destinationCoord.lon };
-
       const response = await axios.post(`http://localhost:4000/user/rides/ride-request`, {
-        locationCoordinates,
-        destinationCoordinates
+        location,
+        destination
       },
         {
           headers: {
@@ -99,7 +88,6 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
       );
 
       console.log("response: ", response);
-      
 
     } catch (error) {
       toast.error("Internal server error!", {
@@ -143,7 +131,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
         </div>
 
-        <button className='px-6 py-3 font-medium text-white bg-gray-900 rounded-md' onClick={findRide}>
+        <button className='px-6 py-3 font-medium text-white bg-gray-900 rounded-md cursor-pointer' onClick={findRide}>
           Find Ride
         </button>
       </section>
