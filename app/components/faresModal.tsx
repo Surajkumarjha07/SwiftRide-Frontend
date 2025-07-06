@@ -1,29 +1,46 @@
-import React from 'react'
-import { useAppDispatch } from '../redux/hooks';
+import React, { useState } from 'react'
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowFare } from '../redux/slices/showFare';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function FaresModal({ fares }: any) {
   const dispatch = useAppDispatch();
+  const cookie = useAppSelector(state => state.Cookie.cookie);
 
   const cancelRide = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    dispatch(setShowFare(false));    
+    dispatch(setShowFare(false));
   }
 
-  const confirmRide = async (e: React.MouseEvent) => {
+  const confirmRide = async (e: React.MouseEvent, vehicle: string, price: number) => {
     e.preventDefault();
+    console.log(vehicle + " " + price);
 
     const response = await axios.post('http://localhost:4000/user/rides/confirm-ride', {
-      
+      vehicle,
+      fare: price
     },
-    {
-      headers: {
-        Authorization: `Bearer `
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookie}`
+        },
+        withCredentials: true
       }
+    );
+
+    if (response.status === 200) {
+      console.log("working");
+      dispatch(setShowFare(false));
+      toast.success("Ride-Confirmed", {
+        type: "success",
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: "top-center"
+      })
     }
-  );
 
   }
 
@@ -45,7 +62,7 @@ export default function FaresModal({ fares }: any) {
                 <p className='font-medium text-lg'> {vehicle.charAt(0).toUpperCase() + vehicle.slice(1)} </p>
                 <p className='font-medium text-sm text-gray-700'> <span> ₹ </span> {price} </p>
               </div>
-              <button className='text-white font-normal bg-gray-900 px-4 py-2 rounded-md cursor-pointer'>
+              <button className='text-white font-normal bg-gray-900 px-4 py-2 rounded-md cursor-pointer' onClick={e => confirmRide(e, vehicle, price)}>
                 Confirm
               </button>
             </div>

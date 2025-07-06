@@ -23,21 +23,21 @@ export default function LogIn() {
     }
 
     const logIn = async (e: React.FormEvent<HTMLFormElement>) => {
-        setSubmitClicked(true);
         e.preventDefault();
+        setSubmitClicked(true);
+
+        if (!password || !email || !role) {
+            toast.error("Enter required credentials!", {
+                type: "error",
+                hideProgressBar: true,
+                autoClose: 1500,
+                position: "top-center"
+            })
+            setSubmitClicked(false);
+            return;
+        }
 
         try {
-            if (!password || !email || !role) {
-                toast.error("Enter required credentials!", {
-                    type: "error",
-                    hideProgressBar: true,
-                    autoClose: 1500,
-                    position: "top-center"
-                })
-                setSubmitClicked(false);
-                return;
-            }
-
             const target = e.target as HTMLFormElement
             const formData = new FormData(target);
             formData.append("role", role);
@@ -69,6 +69,7 @@ export default function LogIn() {
                 })
                 setSubmitClicked(false);
             }
+            
         } catch (error) {
             toast.error("Internal server error!", {
                 type: "error",

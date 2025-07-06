@@ -3,7 +3,9 @@ import { createSlice } from "@reduxjs/toolkit"
 const initialState = {
     userName: "",
     userEmail: "",
-    role: ""
+    role: "",
+    vehicleType: "",
+    vehicleNo: ""
 }
 
 export const UserSlice = createSlice({
@@ -20,9 +22,18 @@ export const UserSlice = createSlice({
 
         setRole: (state, action) => {
             state.role = action.payload;
+        },
+
+        setVehicleType: (state, action) => {
+            state.vehicleType = action.payload;
+        },
+
+        setVehicleNo: (state, action) => {
+            state.vehicleNo = action.payload;
         }
+
     }
 })
 
-export const { setUserEmail, setUserName, setRole } = UserSlice.actions;
+export const { setUserEmail, setUserName, setRole, setVehicleType, setVehicleNo } = UserSlice.actions;
 export default UserSlice.reducer;

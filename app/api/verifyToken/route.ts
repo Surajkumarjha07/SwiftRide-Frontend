@@ -21,11 +21,13 @@ export async function GET(req: NextRequest) {
 
         const verified = jwt.verify(token, SECRET_KEY!);
 
-        if (verified) {
-            return NextResponse.json({ message: 'Authorized', user: decoded });
+        if (!verified) {
+            return NextResponse.json({ message: 'User not verified!' }, { status: 404 });
         }
 
+        return NextResponse.json({ message: 'Authorized', user: decoded });
+
     } catch (err) {
-        return NextResponse.json({ message: 'Invalid token' }, { status: 403 });
+        return NextResponse.json({ message: 'Error in validating token!' }, { status: 403 });
     }
 }

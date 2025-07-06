@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { motion, AnimatePresence } from "framer-motion";
 import Link from 'next/link';
 import { setIsProfileOpen } from '../redux/slices/profile';
-import Cookies from "js-cookie";
-import { setRole, setUserEmail, setUserName } from '../redux/slices/userCredentials';
 
 export default function AccountCentre() {
     const isProfileOpen = useAppSelector(state => state.Profile.isProfileOpen);
@@ -12,31 +10,6 @@ export default function AccountCentre() {
     const userName = useAppSelector(state => state.User.userName);
     const userEmail = useAppSelector(state => state.User.userEmail);
     const role = useAppSelector(state => state.User.role);
-
-    useEffect(() => {
-        const fetchedCookie = Cookies.get("authtoken");
-
-        if (fetchedCookie) {
-            try {
-                const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
-                if (payload.role === "user") {
-                    dispatch(setUserEmail(payload.userEmail));
-                    dispatch(setUserName(payload.userName));
-                }
-
-                else {
-                    dispatch(setUserEmail(payload.captainEmail));
-                    dispatch(setUserName(payload.captainName));
-                }
-
-                dispatch(setRole(payload.role));
-            } catch (error) {
-                console.error("Error parsing the cookie: ", error);
-            }
-        }
-
-    }, [])
-
 
     return (
         <>

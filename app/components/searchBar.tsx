@@ -3,14 +3,16 @@ import { Flag, MapPin } from "lucide-react";
 import { toast } from 'react-toastify';
 import getLocationDetails from '../lib/getLocationDetails';
 import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useAppSelector } from '../redux/hooks';
 
 export default memo(function SearchBar({ coordinates }: { coordinates: { latitude: number, longitude: number } }) {
   const [location, setLocation] = useState<string>("");
   const [destination, setDestination] = useState<string | null>(null);
   const [availableLocation, setAvailableLocation] = useState([]);
-  const [cookie, setCookie] = useState<string | null>(null);
-  const timerId = useRef<NodeJS.Timeout | null>(null);
+  let timerId = useRef<NodeJS.Timeout | null>(null);
+  let lastCalled: number = 0;
+  const role = useAppSelector(state => state.User.role);
+  const cookie = useAppSelector(state => state.Cookie.cookie);
 
   async function getCurrentLocation() {
     const locationBody: any = await getLocationDetails(coordinates);
@@ -20,12 +22,8 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
   }
 
   useEffect(() => {
-    getCurrentLocation();
-    const fetchedCookie = Cookies.get("authtoken");
 
-    if (fetchedCookie) {
-      setCookie(fetchedCookie);
-    }
+    getCurrentLocation();
 
   }, [coordinates])
 
@@ -73,6 +71,22 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
   const findRide = async (e: React.MouseEvent) => {
     e.preventDefault();
 
+    if (!location || !destination) {
+      toast.error("Location and destination required!", {
+        type: "error",
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: "top-center"
+      });
+      return;
+    }
+
+    const now = Date.now();
+
+    if (Math.abs(now - lastCalled) < 2000) return;
+
+    lastCalled = now;
+
     try {
       const response = await axios.post(`http://localhost:4000/user/rides/ride-request`, {
         location,
@@ -105,35 +119,41 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
       <section className='bg-white flex items-center gap-4 absolute top-3 left-5 z-30 rounded-md px-4 py-2 drop-shadow-md drop-shadow-gray-400'>
         <div className='relative min-w-2xs cursor-pointer'>
           <Flag className='absolute top-1/2 left-1 -translate-y-1/2 pointer-events-none text-gray-500' />
-          <input type="text" name="source" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder='From' value={String(location)} onChange={e => setLocation(e.target.value)} />
+          <input type="text" name="source" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder={role === "captain" ? "Location" : "From"} value={String(location)} onChange={e => setLocation(e.target.value)} />
         </div>
 
-        <div className='relative min-w-2xs cursor-pointer'>
-          <MapPin className='absolute top-1/2 left-1 -translate-y-1/2 pointer-events-none text-gray-500' />
-          <input type="text" name="destination" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder='To' value={destination ?? ""} onChange={(e) => findDestination(e)} />
+        {
+          role !== "captain" &&
+          <>
+            <div className='relative min-w-2xs cursor-pointer'>
+              <MapPin className='absolute top-1/2 left-1 -translate-y-1/2 pointer-events-none text-gray-500' />
+              <input type="text" name="destination" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder='To' value={destination ?? ""} onChange={(e) => findDestination(e)} />
 
-          {
-            availableLocation.length > 0 &&
-            <div className='bg-gray-100 w-full h-fit rounded-md absolute top-16 right-0 left-0 px-4 py-3 flex flex-col gap-3 cursor-default'>
               {
-                availableLocation.map((location: any, index) => (
-                  <div key={index} className='group cursor-pointer' onClick={() => {
-                    setDestination(location.display_name);
-                    setAvailableLocation([]);
-                  }}>
-                    <p className='text-gray-900 font-semibold text-sm group-hover:text-red-500'> {location.display_name.split(",")[0]} </p>
-                    <p className='text-gray-500 font-medium text-xs'> {location.display_name.split(",").slice(1)} </p>
-                  </div>
-                ))
+                availableLocation.length > 0 &&
+                <div className='bg-gray-100 w-full h-fit rounded-md absolute top-16 right-0 left-0 px-4 py-3 flex flex-col gap-3 cursor-default'>
+                  {
+                    availableLocation.map((location: any, index) => (
+                      <div key={index} className='group cursor-pointer' onClick={() => {
+                        setDestination(location.display_name);
+                        setAvailableLocation([]);
+                      }}>
+                        <p className='text-gray-900 font-semibold text-sm group-hover:text-red-500'> {location.display_name.split(",")[0]} </p>
+                        <p className='text-gray-500 font-medium text-xs'> {location.display_name.split(",").slice(1)} </p>
+                      </div>
+                    ))
+                  }
+                </div>
               }
+
             </div>
-          }
 
-        </div>
+            <button className='px-6 py-3 font-medium text-white bg-gray-900 rounded-md cursor-pointer' onClick={findRide}>
+              Find Ride
+            </button>
+          </>
+        }
 
-        <button className='px-6 py-3 font-medium text-white bg-gray-900 rounded-md cursor-pointer' onClick={findRide}>
-          Find Ride
-        </button>
       </section>
     </>
   )
