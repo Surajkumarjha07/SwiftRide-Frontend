@@ -47,7 +47,7 @@ export default function Profile() {
     return (
         <section className="z-30 bg-white shadow-lg rounded-xl px-6 py-4 w-fit flex justify-center items-center gap-4">
 
-            <div className="profile w-16 h-16 rounded-full bg-gradient-to-tr from-red-400 to-red-600 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
+            <div className="profile w-16 h-16 rounded-full bg-gradient-to-tr from-gray-400 to-gray-800 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
                 <p className='pointer-events-none text-2xl'>
                     {
                         userName?.charAt(0).toUpperCase()

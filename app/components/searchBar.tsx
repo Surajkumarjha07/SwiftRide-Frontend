@@ -9,10 +9,12 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
   const [location, setLocation] = useState<string>("");
   const [destination, setDestination] = useState<string | null>(null);
   const [availableLocation, setAvailableLocation] = useState([]);
+  const [showLoading, setShowLoading] = useState(false);
   let timerId = useRef<NodeJS.Timeout | null>(null);
   let lastCalled: number = 0;
   const role = useAppSelector(state => state.User.role);
   const cookie = useAppSelector(state => state.Cookie.cookie);
+  const showCancelRideModal = useAppSelector(state => state.RideOptions.showCancelRideModal);
 
   async function getCurrentLocation() {
     const locationBody: any = await getLocationDetails(coordinates);
@@ -81,6 +83,8 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
       return;
     }
 
+    setShowLoading(true);
+
     const now = Date.now();
 
     if (Math.abs(now - lastCalled) < 2000) return;
@@ -101,7 +105,10 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
         }
       );
 
-      console.log("response: ", response);
+      if (response.status === 200) {
+        console.log("response: ", response);
+        setShowLoading(false);
+      }
 
     } catch (error) {
       toast.error("Internal server error!", {
@@ -148,7 +155,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
             </div>
 
-            <button className='px-6 py-3 font-medium text-white bg-gray-900 rounded-md cursor-pointer' onClick={findRide}>
+            <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={showCancelRideModal} onClick={findRide}>
               Find Ride
             </button>
           </>

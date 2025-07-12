@@ -16,12 +16,16 @@ export const RidesSlice = createSlice({
             state.rideId = action.payload;
         },
 
-        setRideData : (state, action: PayloadAction<{}>) => {
+        setRideData: (state, action: PayloadAction<{}>) => {
             state.rideData = action.payload;
         },
 
         setRides: (state, action: PayloadAction<rideType>) => {
             state.rides.push(action.payload);
+        },
+
+        deleteRide: (state, action: PayloadAction<string>) => {
+            state.rides = state.rides.filter(ride => ride.rideId !== action.payload);
         },
 
         setRidesMap: (state, action: PayloadAction<{ rideId: string, rideData: Object }>) => {
@@ -30,5 +34,5 @@ export const RidesSlice = createSlice({
     }
 })
 
-export const { setRideId, setRideData, setRides, setRidesMap } = RidesSlice.actions;
+export const { setRideId, setRideData, setRides, deleteRide, setRidesMap } = RidesSlice.actions;
 export default RidesSlice.reducer;

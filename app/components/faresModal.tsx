@@ -34,12 +34,6 @@ export default function FaresModal({ fares }: any) {
     if (response.status === 200) {
       console.log("working");
       dispatch(setShowFare(false));
-      toast.success("Ride-Confirmed", {
-        type: "success",
-        hideProgressBar: true,
-        autoClose: 1500,
-        position: "top-center"
-      })
     }
 
   }

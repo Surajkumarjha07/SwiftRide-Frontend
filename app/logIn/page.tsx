@@ -6,7 +6,6 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
 import { useAppDispatch } from '../redux/hooks';
-import { setLogInState } from '../redux/slices/logIn';
 import logInService from '../services/logIn.service';
 
 export default function LogIn() {
@@ -48,7 +47,6 @@ export default function LogIn() {
 
             if (response.ok) {
                 Cookies.set("authtoken", data.token, { expires: 1 / 24, path: "/" });
-                dispatch(setLogInState(true));
                 toast.success("Congrats! Logged In", {
                     type: "success",
                     hideProgressBar: true,

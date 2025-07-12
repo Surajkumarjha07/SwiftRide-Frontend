@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { setShowAcceptRideModal } from '../redux/slices/acceptRide';
+import { setShowAcceptRideModal, setShowCompleteRideModal } from '../redux/slices/rideOptions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { deleteRide } from '../redux/slices/rides';
 
 const RideDetail = ({ label, value }: { label: string, value?: string }) => (
     <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
@@ -13,16 +14,19 @@ const RideDetail = ({ label, value }: { label: string, value?: string }) => (
 );
 
 export default function AcceptRideModal() {
-    const showAcceptRideModal = useAppSelector(state => state.AcceptRide.showAcceptRideModal);
+    const showAcceptRideModal = useAppSelector(state => state.RideOptions.showAcceptRideModal);
     const dispatch = useAppDispatch();
     const rideData: any = useAppSelector(state => state.Rides.rideData);
-    const cookie = useAppSelector(state => state.Cookie.cookie);
+    const cookie: string = useAppSelector(state => state.Cookie.cookie);
+    const rideId: string = useAppSelector(state => state.Rides.rideId);
 
     const rideAcceptHandler = async (e: React.MouseEvent) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:4000/captain/rides/acceptRide", {}, {
+            const response = await axios.post("http://localhost:4000/captain/rides/acceptRide", {
+                rideId
+            }, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${cookie}`
@@ -30,13 +34,18 @@ export default function AcceptRideModal() {
                 withCredentials: true
             });
 
+            console.log("res: ", response);
+
+
             if (response.status === 200) {
                 toast.success("Ride Accepted!", {
                     type: "success",
                     hideProgressBar: true,
                     autoClose: 1500,
                     position: "top-center"
-                })
+                });
+                dispatch(setShowAcceptRideModal(false));
+                dispatch(setShowCompleteRideModal(true));
             }
 
             else {
@@ -58,6 +67,24 @@ export default function AcceptRideModal() {
         }
     }
 
+    const handleRejectRide = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        try {
+            dispatch(setShowAcceptRideModal(false));
+            // dispatch(deleteRide(rideId));
+
+        } catch (error) {
+            toast.error("Internal server error!", {
+                type: "error",
+                hideProgressBar: true,
+                autoClose: 1500,
+                position: "top-center"
+            })
+        }
+
+    }
+
     return (
         <>
             <AnimatePresence mode='wait'>
@@ -75,16 +102,23 @@ export default function AcceptRideModal() {
                     </h1>
 
                     <div className='space-y-3 mb-6'>
-                        <RideDetail label='Ride Id' value={rideData?.rideId} />
-                        <RideDetail label='Pick Up Location' value={rideData?.pickUpLocation} />
-                        <RideDetail label='Destination' value={rideData?.destination} />
+                        {
+                            rideData && (
+                                <>
+                                    <RideDetail label='Ride ID' value={rideData?.rideId} />
+                                    <RideDetail label='Pick Up Location' value={rideData?.pickUpLocation} />
+                                    <RideDetail label='Destination' value={rideData?.destination} />
+                                </>
+                            )
+                        }
                     </div>
 
                     <div className="flex justify-between gap-4">
                         <button className="w-full text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 font-medium py-2 rounded-full cursor-pointer" onClick={e => rideAcceptHandler(e)}>
                             Accept
                         </button>
-                        <button className="w-full text-white bg-red-500 hover:bg-red-600 transition-colors duration-200 font-medium py-2 rounded-full cursor-pointer" onClick={() => dispatch(setShowAcceptRideModal(false))}>
+
+                        <button className="w-full text-white bg-red-500 hover:bg-red-600 transition-colors duration-200 font-medium py-2 rounded-full cursor-pointer" onClick={e => handleRejectRide(e)}>
                             Reject
                         </button>
                     </div>

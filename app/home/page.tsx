@@ -19,12 +19,16 @@ import VerifyVehicle from '../components/verifyVehicle';
 import { jwtDecode } from 'jwt-decode';
 import { CaptainPayload, UserPayload } from '../types/payloads';
 import { setShowVehicleModal } from '../redux/slices/verifyVehicle';
-import AcceptRideModal from '../components/accepRideModal';
+import AcceptRideModal from '../components/acceptRideModal';
 import RidesBadge from '../components/ridesBadge';
 import { setRole, setUserEmail, setUserName, setVehicleNo, setVehicleType } from '../redux/slices/userCredentials';
 import RidesList from '../components/ridesList';
-import rideType from '../types/rideTag';
-import { setRides, setRidesMap } from '../redux/slices/rides';
+import { setRideData, setRides, setRidesMap } from '../redux/slices/rides';
+import { toast } from 'react-toastify';
+import CancelRideModal from '../components/cancelRideModal';
+import { setShowCancelRideModal } from '../redux/slices/rideOptions';
+import CompleteRideModal from '../components/rideCompleted';
+import PaymentModal from '../components/paymentModal';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
@@ -36,6 +40,8 @@ export default function UserHomePage() {
     const showFare = useAppSelector(state => state.Fare.showFare);
     const role = useAppSelector(state => state.User.role);
     const rides = useAppSelector(state => state.Rides.rides);
+    const showCancelRideModal = useAppSelector(state => state.RideOptions.showCancelRideModal);
+    const showCompleteRideModal = useAppSelector(state => state.RideOptions.showCompleteRideModal);
 
     const Map = useMemo(() => dynamic(
         () => import('../components/map'),
@@ -134,34 +140,68 @@ export default function UserHomePage() {
         dispatch(setShowFare(true));
     }
 
-    const handleAccepRide = ({ captain, rideData }: { captain: Object, rideData: Object }) => {
+    const handleAcceptRide = ({ captain, rideData }: { captain: Object, rideData: Object }) => {
 
         console.log("accept-ride: ", captain, rideData);
         const { pickUpLocation, rideId } = rideData as any;
 
         dispatch(setRides({ rideId, pickUpLocation }));
         dispatch(setRidesMap({ rideId, rideData }));
-        
+
     }
 
     const handleCaptainNotFound = ({ rideData }: any) => {
 
-        console.log("captain not found", rideData);
+        setTimeout(() => {
+            console.log("captain not found", rideData);
+
+            toast.error("Sorry! No captain available at the moment", {
+                type: "error",
+                hideProgressBar: true,
+                autoClose: 1500,
+                position: "top-center"
+            });
+        }, 2000);
+
+    }
+
+    const handleRideConfirmed = ({ rideData }: any) => {
+        console.log("ride confirmed: ", rideData);
+
+        toast.success("Ride Confirmed!", {
+            type: "success",
+            hideProgressBar: true,
+            autoClose: 1500,
+            position: "top-center"
+        });
+
+        dispatch(setShowCancelRideModal(true));
+
+    }
+
+    const handlePaymentRequest = ({ rideData }: any) => {
+        console.log("get payment request: ", rideData);
+
+        dispatch(setRideData(rideData));
 
     }
 
     useEffect(() => {
         if (socket) {
             socket.on("fare-fetched", handleFareFetched)
-            socket.on("accept-ride", handleAccepRide);
+            socket.on("accept-ride", handleAcceptRide);
             socket.on("no-captain-found", handleCaptainNotFound);
+            socket.on("ride-confirmed", handleRideConfirmed);
+            socket.on("payment-request", handlePaymentRequest);
         }
 
         return () => {
             if (socket) {
                 socket.off("fare-fetched", handleFareFetched);
-                socket.off("accept-ride", handleAccepRide);
+                socket.off("accept-ride", handleAcceptRide);
                 socket.off("no-captain-found", handleCaptainNotFound);
+                socket.off("ride-confirmed", handleRideConfirmed);
+                socket.off("payment-request", handlePaymentRequest);
             }
         }
     }, [socket])
@@ -172,6 +212,16 @@ export default function UserHomePage() {
                 showContent &&
                 <section>
                     <div className='absolute top-3 right-5 z-30 flex justify-center items-start gap-4'>
+                        {
+                            showCancelRideModal &&
+                            <CancelRideModal />
+                        }
+
+                        {
+                            showCompleteRideModal &&
+                            <CompleteRideModal />
+                        }
+
                         {
                             role === "captain" &&
                             <div className={`flex flex-col gap-4 items-end`}>
@@ -192,6 +242,7 @@ export default function UserHomePage() {
                     <VerifyVehicle />
                     <AcceptRideModal />
                     <BlackScreen />
+                    <PaymentModal/>
 
                     {
                         showFare &&

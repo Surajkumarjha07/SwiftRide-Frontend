@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { setShowAcceptRideModal } from '../redux/slices/acceptRide';
+import { setShowAcceptRideModal } from '../redux/slices/rideOptions';
 import rideType from '../types/rideTag';
 import { setRideData, setRideId } from '../redux/slices/rides';
 
