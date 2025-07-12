@@ -1,17 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit";
-import LogInReducer from "./slices/logIn";
 import ProfileReducer from "./slices/profile";
 import UserReducer from "./slices/userCredentials";
 import FareReducer from "./slices/showFare";
 import CookieReducer from "./slices/cookie";
+import VehicleReducer from "./slices/verifyVehicle";
+import RideOptionsReducer from "./slices/rideOptions";
+import RidesListReducer from "./slices/ridesList";
+import RidesReducer from "./slices/rides";
+import PaymentsReducer from "./slices/payments";
 
 export const store = configureStore({
     reducer: {
-        LogIn: LogInReducer,
         Profile: ProfileReducer,
         User: UserReducer,
         Fare: FareReducer,
-        Cookie: CookieReducer
+        Cookie: CookieReducer,
+        Vehicle: VehicleReducer,
+        RideOptions: RideOptionsReducer,
+        RidesList: RidesListReducer,
+        Rides: RidesReducer,
+        Payments: PaymentsReducer
     }
 });
 

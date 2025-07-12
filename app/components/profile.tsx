@@ -1,45 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 import Cookies from 'js-cookie';
-import { setUserEmail, setUserName } from '../redux/slices/userCredentials';
-import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 export default function Profile() {
     const dispatch = useAppDispatch();
     const userName = useAppSelector(state => state.User.userName);
+    const userEmail = useAppSelector(state => state.User.userEmail);
+    const role = useAppSelector(state => state.User.role);
+    const router = useRouter();
 
-    useEffect(() => {
-        const fetchedCookie = Cookies.get("authtoken");
+    async function signOut(e: React.MouseEvent) {
+        e.preventDefault();
 
-        if (fetchedCookie) {
-            try {
-                const payload: any = jwtDecode(fetchedCookie);
-                if (payload.role === "user") {
-                    dispatch(setUserEmail(payload.userEmail));
-                    dispatch(setUserName(payload.userName));
-                }
+        try {
+            const url = role === "user"
+                ? "http://localhost:4000/user/actions/logout"
+                : "http://localhost:4000/captain/actions/logout";
 
-                else {
-                    dispatch(setUserEmail(payload.captainEmail));
-                    dispatch(setUserName(payload.captainName));
-                }
-            } catch (error) {
-                console.error("Error parsing the cookie: ", error);
+            const response = await axios.post(url, {}, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            });
+
+            if (response.status === 200) {
+                Cookies.remove("authtoken");
+                router.push("./logIn");
             }
+
+        } catch (error) {
+            toast.error("Internal server error!", {
+                type: "error",
+                hideProgressBar: true,
+                autoClose: 1500,
+                position: "top-center"
+            })
         }
 
-    }, [])
+    }
 
     return (
-        <section className="absolute top-3 right-5 z-30 bg-white shadow-lg rounded-2xl px-6 py-4 w-fit flex gap-4 items-center">
+        <section className="z-30 bg-white shadow-lg rounded-xl px-6 py-4 w-fit flex justify-center items-center gap-4">
 
-            <div className="profile w-14 h-14 rounded-full bg-gradient-to-tr from-red-400 to-red-600 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
-                <p className='pointer-events-none'>
+            <div className="profile w-16 h-16 rounded-full bg-gradient-to-tr from-gray-400 to-gray-800 flex items-center justify-center text-white font-semibold text-xl cursor-pointer" onClick={() => dispatch(setIsProfileOpen(true))}>
+                <p className='pointer-events-none text-2xl'>
                     {
                         userName?.charAt(0).toUpperCase()
                     }
                 </p>
+            </div>
+
+            <div className='flex flex-col justify-center items-start gap-2'>
+                <div className='-space-y-0.5'>
+                    <p className='text-[1.1rem] font-semibold'> {userName} </p>
+                    <p className='text-sm font-medium text-gray-600'> {userEmail} </p>
+                </div>
+
+                <button className='text-blue-500 text-sm cursor-pointer font-semibold' onClick={e => signOut(e)}>
+                    Sign Out
+                </button>
             </div>
 
         </section>

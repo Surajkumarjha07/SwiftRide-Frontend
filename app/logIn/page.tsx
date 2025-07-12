@@ -6,7 +6,6 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
 import { useAppDispatch } from '../redux/hooks';
-import { setLogInState } from '../redux/slices/logIn';
 import logInService from '../services/logIn.service';
 
 export default function LogIn() {
@@ -23,21 +22,21 @@ export default function LogIn() {
     }
 
     const logIn = async (e: React.FormEvent<HTMLFormElement>) => {
-        setSubmitClicked(true);
         e.preventDefault();
+        setSubmitClicked(true);
+
+        if (!password || !email || !role) {
+            toast.error("Enter required credentials!", {
+                type: "error",
+                hideProgressBar: true,
+                autoClose: 1500,
+                position: "top-center"
+            })
+            setSubmitClicked(false);
+            return;
+        }
 
         try {
-            if (!password || !email || !role) {
-                toast.error("Enter required credentials!", {
-                    type: "error",
-                    hideProgressBar: true,
-                    autoClose: 1500,
-                    position: "top-center"
-                })
-                setSubmitClicked(false);
-                return;
-            }
-
             const target = e.target as HTMLFormElement
             const formData = new FormData(target);
             formData.append("role", role);
@@ -48,7 +47,6 @@ export default function LogIn() {
 
             if (response.ok) {
                 Cookies.set("authtoken", data.token, { expires: 1 / 24, path: "/" });
-                dispatch(setLogInState(true));
                 toast.success("Congrats! Logged In", {
                     type: "success",
                     hideProgressBar: true,
@@ -69,6 +67,7 @@ export default function LogIn() {
                 })
                 setSubmitClicked(false);
             }
+            
         } catch (error) {
             toast.error("Internal server error!", {
                 type: "error",

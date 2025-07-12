@@ -10,6 +10,8 @@ type CaptainPayload = {
     captainName: string,
     captainId: string,
     role: string,
+    vehicleType: string,
+    vehicleNo: string,
     isVehicleVerified: string
 }
 

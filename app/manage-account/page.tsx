@@ -8,6 +8,7 @@ import { CaptainPayload, UserPayload } from '../types/payloads';
 import { setRole } from '../redux/slices/userCredentials';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 export default function ManageAccount() {
     const [submitClicked, setSubmitClicked] = useState<boolean>(false);
@@ -20,9 +21,9 @@ export default function ManageAccount() {
     const [oldPassword, setOldPassword] = useState<string>("");
     const dispatch = useAppDispatch();
     const role = useAppSelector(state => state.User.role);
-    const [token, setToken] = useState<string>("");
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
+    const cookie = useAppSelector(state => state.Cookie.cookie);
 
     const handleActionType = (e: React.MouseEvent, actionType: string) => {
         e.preventDefault();
@@ -30,22 +31,18 @@ export default function ManageAccount() {
     }
 
     useEffect(() => {
-        const fetchedCookie = Cookies.get("authtoken");
-        if (fetchedCookie) {
-            setToken(fetchedCookie);
-        }
-
-        if (fetchedCookie) {
-            try {
-                const payload = JSON.parse(atob(fetchedCookie.split(".")[1]));
-                console.log(payload);
-
+        try {
+            const fetchedCookie = Cookies.get("authtoken");
+    
+            if (fetchedCookie) {
+                const payload: UserPayload & CaptainPayload = jwtDecode(fetchedCookie);
+    
                 if (payload.role === "user") {
                     setEmail(payload.userEmail ?? "");
                     setName(payload.userName ?? "");
                     dispatch(setRole("user"));
                 }
-
+    
                 else {
                     setEmail(payload.captainEmail ?? "");
                     setName(payload.captainName ?? "");
@@ -53,9 +50,9 @@ export default function ManageAccount() {
                     setVehicleNo(payload.vehicleNo ?? "");
                     dispatch(setRole("captain"));
                 }
-            } catch (error) {
-                console.error("Error parsing the cookie: ", error);
             }
+        } catch (error) {
+            throw new Error("Error in parsing cookie: " + (error as Error).message);
         }
 
     }, []);
@@ -111,7 +108,7 @@ export default function ManageAccount() {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${cookie}`
                 },
                 credentials: "include",
                 body: JSON.stringify(formBody)
@@ -130,7 +127,7 @@ export default function ManageAccount() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        "Authorization": `Bearer ${cookie}`
                     },
                     credentials: "include",
                 })
@@ -182,7 +179,7 @@ export default function ManageAccount() {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${cookie}`
                 },
                 credentials: "include",
                 body: JSON.stringify({ password: oldPassword })
@@ -201,7 +198,7 @@ export default function ManageAccount() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        "Authorization": `Bearer ${cookie}`
                     },
                     credentials: "include",
                 });
