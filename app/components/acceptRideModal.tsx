@@ -19,13 +19,17 @@ export default function AcceptRideModal() {
     const rideData: any = useAppSelector(state => state.Rides.rideData);
     const cookie: string = useAppSelector(state => state.Cookie.cookie);
     const rideId: string = useAppSelector(state => state.Rides.rideId);
+    const vehicle: string = useAppSelector(state => state.User.vehicleType);
+    const vehicle_number: string = useAppSelector(state => state.User.vehicleNo);
 
     const rideAcceptHandler = async (e: React.MouseEvent) => {
         e.preventDefault();
 
         try {
             const response = await axios.post("http://localhost:4000/captain/rides/acceptRide", {
-                rideId
+                rideId,
+                vehicle,
+                vehicle_number
             }, {
                 headers: {
                     "Content-Type": "application/json",

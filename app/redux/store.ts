@@ -8,6 +8,8 @@ import RideOptionsReducer from "./slices/rideOptions";
 import RidesListReducer from "./slices/ridesList";
 import RidesReducer from "./slices/rides";
 import PaymentsReducer from "./slices/payments";
+import LocationDetailsReducer from "./slices/locationDetails";
+import LocationCoordinatesReducer from "./slices/locationCoordinates";
 
 export const store = configureStore({
     reducer: {
@@ -19,7 +21,9 @@ export const store = configureStore({
         RideOptions: RideOptionsReducer,
         RidesList: RidesListReducer,
         Rides: RidesReducer,
-        Payments: PaymentsReducer
+        Payments: PaymentsReducer,
+        LocationDetails: LocationDetailsReducer,
+        LocationCoordinates: LocationCoordinatesReducer
     }
 });
 

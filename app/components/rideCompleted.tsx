@@ -47,10 +47,10 @@ export default function CompleteRideModal() {
         <>
             <section className='bg-white/90 rounded-xl px-4 py-2 flex flex-col justify-center items-center gap-4'>
                 <p className='text-sm text-gray-700 font-semibold text-center'>
-                    You can cancel your ride till 5 minutes
+                    Complete the ride when you reach
                     <br />
                     <span>
-                        after ride confirmed
+                        your destination to get payment
                     </span>
                 </p>
 

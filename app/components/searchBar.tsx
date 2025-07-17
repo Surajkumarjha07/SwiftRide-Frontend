@@ -1,13 +1,14 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Flag, MapPin } from "lucide-react";
 import { toast } from 'react-toastify';
-import getLocationDetails from '../lib/getLocationDetails';
 import axios from 'axios';
-import { useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { setDestination, setLocation } from '../redux/slices/locationDetails';
+import getCurrentLocation from '../lib/getCurrentLocation';
+import getCoordinates from '../lib/getCoordinates';
+import { setDestinationCoordinates } from '../redux/slices/locationCoordinates';
 
 export default memo(function SearchBar({ coordinates }: { coordinates: { latitude: number, longitude: number } }) {
-  const [location, setLocation] = useState<string>("");
-  const [destination, setDestination] = useState<string | null>(null);
   const [availableLocation, setAvailableLocation] = useState([]);
   const [showLoading, setShowLoading] = useState(false);
   let timerId = useRef<NodeJS.Timeout | null>(null);
@@ -15,23 +16,26 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
   const role = useAppSelector(state => state.User.role);
   const cookie = useAppSelector(state => state.Cookie.cookie);
   const showCancelRideModal = useAppSelector(state => state.RideOptions.showCancelRideModal);
-
-  async function getCurrentLocation() {
-    const locationBody: any = await getLocationDetails(coordinates);
-    const location = (locationBody.road ?? "") + (locationBody.road ? ", " : "") + (locationBody.suburb ?? "") + (locationBody.suburb ? ", " : "") + (locationBody.neighbourhood ?? "") + (locationBody.neighbourhood ? ", " : "") + (locationBody.city ?? "") + (locationBody.city ? ", " : "") + (locationBody.state ?? "") + (locationBody.state ? ", " : "") + (locationBody.postcode ?? "");
-
-    setLocation(location);
-  }
+  const location = useAppSelector(state => state.LocationDetails.location);
+  const destination = useAppSelector(state => state.LocationDetails.destination);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
 
-    getCurrentLocation();
+    const fetchLocation = async () => {
+      if (Object.keys(coordinates).length !== 0) {
+        const currentLocation: string = await getCurrentLocation(coordinates);
+        dispatch(setLocation(currentLocation));
+      }
+    }
+
+    fetchLocation();
 
   }, [coordinates])
 
   const findDestination = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    setDestination(value);
+    dispatch(setDestination(value));
 
     if (value.length <= 1 || !value) {
       if (timerId.current) {
@@ -126,7 +130,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
       <section className='bg-white flex items-center gap-4 absolute top-3 left-5 z-30 rounded-md px-4 py-2 drop-shadow-md drop-shadow-gray-400'>
         <div className='relative min-w-2xs cursor-pointer'>
           <Flag className='absolute top-1/2 left-1 -translate-y-1/2 pointer-events-none text-gray-500' />
-          <input type="text" name="source" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder={role === "captain" ? "Location" : "From"} value={String(location)} onChange={e => setLocation(e.target.value)} />
+          <input type="text" name="source" className='w-full h-fit py-3 px-2 pl-8 bg-gray-100 rounded-md placeholder:text-gray-500 placeholder:text-lg outline-none shadow-inner shadow-gray-200' placeholder={role === "captain" ? "Location" : "From"} value={String(location)} onChange={e => dispatch(setLocation(e.target.value))} />
         </div>
 
         {
@@ -141,10 +145,16 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
                 <div className='bg-gray-100 w-full h-fit rounded-md absolute top-16 right-0 left-0 px-4 py-3 flex flex-col gap-3 cursor-default'>
                   {
                     availableLocation.map((location: any, index) => (
-                      <div key={index} className='group cursor-pointer' onClick={() => {
-                        setDestination(location.display_name);
+                      <div key={index} className='group cursor-pointer' onClick={async () => {
+                        dispatch(setDestination(location.display_name));
                         setAvailableLocation([]);
+                        const coordinates = await getCoordinates(location.display_name);
+                        const { latitude, longitude } = coordinates;
+                        if (latitude && longitude) {
+                          dispatch(setDestinationCoordinates({ latitude, longitude }))
+                        }
                       }}>
+
                         <p className='text-gray-900 font-semibold text-sm group-hover:text-red-500'> {location.display_name.split(",")[0]} </p>
                         <p className='text-gray-500 font-medium text-xs'> {location.display_name.split(",").slice(1)} </p>
                       </div>
@@ -156,7 +166,13 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
             </div>
 
             <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={showCancelRideModal} onClick={findRide}>
-              Find Ride
+
+              {
+                !showLoading ?
+                  "Find Ride" :
+                  "Finding..."
+              }
+
             </button>
           </>
         }

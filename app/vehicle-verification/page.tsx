@@ -31,7 +31,7 @@ export default function VehicleVerification() {
         const fetchedCookie = Cookies.get("authtoken");
 
         if (fetchedCookie) {
-            dispatch(setCookie(fetchedCookie));
+            dispatch(setCookie(fetchedCookie));            
         }
 
     }, [])

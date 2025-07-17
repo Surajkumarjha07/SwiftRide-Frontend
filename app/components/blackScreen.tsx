@@ -19,7 +19,7 @@ export default function BlackScreen() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
 
-                    className={`${(isProfileOpen || showFare || isVerifyVehicleOpen || showAcceptRideModal) ? "visible" : "hidden"} absolute top-0 right-0 left-0 bottom-0 w-screen h-screen bg-gray-900/30 z-40 backdrop-blur-xs`} />
+                    className={`${(isProfileOpen || showFare || isVerifyVehicleOpen || showAcceptRideModal || showPaymentsModal) ? "visible" : "hidden"} absolute top-0 right-0 left-0 bottom-0 w-screen h-screen bg-gray-900/30 z-40 backdrop-blur-xs`} />
 
             </AnimatePresence>
         </>

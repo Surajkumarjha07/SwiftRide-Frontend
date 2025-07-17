@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
 import { useRouter } from 'next/navigation';
 import verifyToken from '../lib/verifyToken';
-import coord from '../types/coordinates';
 import { useSocket } from '../contexts/socketContext';
 import FaresModal from '../components/faresModal';
 import { setShowFare } from '../redux/slices/showFare';
@@ -21,7 +20,7 @@ import { CaptainPayload, UserPayload } from '../types/payloads';
 import { setShowVehicleModal } from '../redux/slices/verifyVehicle';
 import AcceptRideModal from '../components/acceptRideModal';
 import RidesBadge from '../components/ridesBadge';
-import { setRole, setUserEmail, setUserName, setVehicleNo, setVehicleType } from '../redux/slices/userCredentials';
+import { setRole, setUserEmail, setUserId, setUserName, setVehicleNo, setVehicleType } from '../redux/slices/userCredentials';
 import RidesList from '../components/ridesList';
 import { setRideData, setRides, setRidesMap } from '../redux/slices/rides';
 import { toast } from 'react-toastify';
@@ -29,10 +28,12 @@ import CancelRideModal from '../components/cancelRideModal';
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
 import CompleteRideModal from '../components/rideCompleted';
 import PaymentModal from '../components/paymentModal';
+import { setShowPaymentsModal } from '../redux/slices/payments';
+import { setLocationCoordinates } from '../redux/slices/locationCoordinates';
+import axios from 'axios';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
-    const [coordinates, setCoordinates] = useState<coord | null>(null);
     const [showContent, setShowContent] = useState(false);
     const router = useRouter();
     const socket = useSocket();
@@ -42,6 +43,9 @@ export default function UserHomePage() {
     const rides = useAppSelector(state => state.Rides.rides);
     const showCancelRideModal = useAppSelector(state => state.RideOptions.showCancelRideModal);
     const showCompleteRideModal = useAppSelector(state => state.RideOptions.showCompleteRideModal);
+    const destination = useAppSelector(state => state.LocationCoordinates.destinationCoordinates);
+    const coordinates = useAppSelector(state => state.LocationCoordinates.locationCoordinates);
+    const cookie = useAppSelector(state => state.Cookie.cookie);
 
     const Map = useMemo(() => dynamic(
         () => import('../components/map'),
@@ -65,18 +69,64 @@ export default function UserHomePage() {
     }
 
     useEffect(() => {
+        const interval = setInterval(async () => {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                console.log(latitude, longitude);
+
+                dispatch(setLocationCoordinates({ latitude, longitude }));
+
+                let url: string = role === "user" ? "http://localhost:4000/location-update/user" : "http://localhost:4000/location-update/captain";
+
+                if (cookie && latitude && longitude && typeof latitude === "number" && typeof longitude === "number") {
+                    const response = await axios.post(url,
+                        {
+                            coordinates
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${cookie}`
+                            },
+                            withCredentials: true
+                        }
+                    );
+
+                    console.log("loc response: ", response);
+                }
+
+            },
+                () => {
+                    console.log("error in getting current location!");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 0
+                });
+
+        }, 5 * 1000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, [role, cookie, coordinates]);
+
+    useEffect(() => {
         navigator.geolocation.getCurrentPosition((pos) => {
             const { latitude, longitude } = pos.coords;
             console.log(latitude, longitude);
 
-            setCoordinates({ latitude, longitude });
+            if (latitude && longitude) {
+                dispatch(setLocationCoordinates({ latitude, longitude }));
+            }
         },
             () => {
                 console.log("error in getting current location!");
             },
             {
                 enableHighAccuracy: true,
-                timeout: 3000,
+                timeout: 10000,
                 maximumAge: 0
             });
 
@@ -97,31 +147,34 @@ export default function UserHomePage() {
     useEffect(() => {
         const fetchedCookie = Cookies.get("authtoken");
 
+        let payload = {} as UserPayload & CaptainPayload;
+
         if (fetchedCookie) {
             dispatch(setCookie(fetchedCookie));
 
             try {
-                const payload: UserPayload & CaptainPayload = jwtDecode(fetchedCookie);
-
-                if (payload.role === "user") {
-                    dispatch(setUserEmail(payload.userEmail));
-                    dispatch(setUserName(payload.userName));
-                    dispatch(setRole("user"));
-                }
-
-                else {
-                    dispatch(setUserEmail(payload.captainEmail));
-                    dispatch(setUserName(payload.captainName));
-                    dispatch(setRole("captain"));
-                    dispatch(setVehicleType(payload.vehicleType));
-                    dispatch(setVehicleNo(payload.vehicleNo));
-                }
+                payload = jwtDecode(fetchedCookie);
 
             } catch (error) {
                 console.error("Error parsing the cookie: ", error);
             }
 
-            const payload: CaptainPayload & UserPayload = jwtDecode(fetchedCookie);
+            if (payload.role === "user") {
+                dispatch(setUserId(payload.userId));
+                dispatch(setUserEmail(payload.userEmail));
+                dispatch(setUserName(payload.userName));
+                dispatch(setRole("user"));
+            }
+
+            else {
+                dispatch(setUserId(payload.captainId));
+                dispatch(setUserEmail(payload.captainEmail));
+                dispatch(setUserName(payload.captainName));
+                dispatch(setRole("captain"));
+                dispatch(setVehicleType(payload.vehicleType));
+                dispatch(setVehicleNo(payload.vehicleNo));
+            }
+
             if (payload.role === "captain" && payload.isVehicleVerified !== "VERIFIED") {
                 dispatch(setShowVehicleModal(true));
             }
@@ -183,6 +236,7 @@ export default function UserHomePage() {
         console.log("get payment request: ", rideData);
 
         dispatch(setRideData(rideData));
+        dispatch(setShowPaymentsModal(true));
 
     }
 
@@ -234,7 +288,7 @@ export default function UserHomePage() {
                     </div>
 
                     {
-                        (coordinates) &&
+                        coordinates &&
                         <SearchBar coordinates={coordinates} />
                     }
 
@@ -242,7 +296,7 @@ export default function UserHomePage() {
                     <VerifyVehicle />
                     <AcceptRideModal />
                     <BlackScreen />
-                    <PaymentModal/>
+                    <PaymentModal />
 
                     {
                         showFare &&
@@ -250,8 +304,8 @@ export default function UserHomePage() {
                     }
 
                     {
-                        coordinates &&
-                        <Map position={[coordinates?.latitude, coordinates?.longitude]} zoom={10} />
+                        (Object.keys(coordinates).length !== 0 && typeof coordinates.latitude === "number" && typeof coordinates.longitude === "number") &&
+                        <Map position={coordinates} destination={destination} zoom={10} />
                     }
                 </section>
             }
