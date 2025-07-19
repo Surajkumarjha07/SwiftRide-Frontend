@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { setShowAcceptRideModal, setShowCompleteRideModal } from '../redux/slices/rideOptions';
+import { setShowAcceptRideModal, setShowCompleteRideModal, setShowRidesBadge } from '../redux/slices/rideOptions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { deleteRide } from '../redux/slices/rides';
+import { clearRides, deleteRide } from '../redux/slices/rides';
+import { setShowRidesList } from '../redux/slices/ridesList';
 
 const RideDetail = ({ label, value }: { label: string, value?: string }) => (
     <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
@@ -20,7 +21,7 @@ export default function AcceptRideModal() {
     const cookie: string = useAppSelector(state => state.Cookie.cookie);
     const rideId: string = useAppSelector(state => state.Rides.rideId);
     const vehicle: string = useAppSelector(state => state.User.vehicleType);
-    const vehicle_number: string = useAppSelector(state => state.User.vehicleNo);
+    const vehicle_number: string = useAppSelector(state => state.User.vehicleNo)
 
     const rideAcceptHandler = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -35,7 +36,8 @@ export default function AcceptRideModal() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${cookie}`
                 },
-                withCredentials: true
+                withCredentials: true,
+                validateStatus: (status) => true
             });
 
             console.log("res: ", response);
@@ -48,21 +50,26 @@ export default function AcceptRideModal() {
                     autoClose: 1500,
                     position: "top-center"
                 });
+
                 dispatch(setShowAcceptRideModal(false));
                 dispatch(setShowCompleteRideModal(true));
+                dispatch(clearRides());
+                dispatch(setShowRidesBadge(false));
             }
 
-            else {
-                toast.error(response.data.message, {
+            if (response.status === 410) {
+                dispatch(deleteRide(rideId));
+                dispatch(setShowAcceptRideModal(false));
+                toast.error("Ride expired! Try another", {
                     type: "error",
                     hideProgressBar: true,
                     autoClose: 1500,
                     position: "top-center"
-                })
+                });
             }
 
         } catch (error) {
-            toast.error("Internal server error!", {
+            toast.error("Internal server error", {
                 type: "error",
                 hideProgressBar: true,
                 autoClose: 1500,
@@ -76,7 +83,7 @@ export default function AcceptRideModal() {
 
         try {
             dispatch(setShowAcceptRideModal(false));
-            // dispatch(deleteRide(rideId));
+            dispatch(deleteRide(rideId));
 
         } catch (error) {
             toast.error("Internal server error!", {
@@ -106,6 +113,7 @@ export default function AcceptRideModal() {
                     </h1>
 
                     <div className='space-y-3 mb-6'>
+
                         {
                             rideData && (
                                 <>
@@ -115,6 +123,7 @@ export default function AcceptRideModal() {
                                 </>
                             )
                         }
+
                     </div>
 
                     <div className="flex justify-between gap-4">

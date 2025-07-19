@@ -12,23 +12,27 @@ export default function RideTag({ ride }: { ride: rideType }) {
   const openAcceptRide = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    dispatch(setShowAcceptRideModal(true));
     dispatch(setRideId(ride.rideId));
+    let rideData: any;
 
-    const rideData = ridesMap[rideId];
+    rideData = ridesMap[ride.rideId];
 
-    dispatch(setRideData(rideData));
+    if (rideData && Object.keys(rideData).length !== 0) {
+      dispatch(setRideData(rideData));
+      dispatch(setShowAcceptRideModal(true));
+    }
+
   }
 
   return (
     <>
-      <div className='w-full h-fit px-4 py-3 bg-gray-50 rounded-xl shadow-sm hover:shadow-md cursor-pointer' onClick={openAcceptRide}>
-        <h1 className='text-sm break-words text-gray-800 font-medium'>
+      <div className='w-full h-fit px-4 py-3 bg-gray-50 rounded-xl shadow-sm hover:shadow-md cursor-pointer rideTag' onClick={openAcceptRide}>
+        <h1 className='text-sm break-words text-gray-800 font-medium pointer-events-none'>
           {
             ride.rideId
           }
         </h1>
-        <p className='text-gray-600 font-normal'>
+        <p className='text-gray-600 font-normal pointer-events-none'>
           <span className='text-gray-700 font-medium'> To: </span>
           {
             ride.pickUpLocation

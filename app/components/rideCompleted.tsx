@@ -54,7 +54,7 @@ export default function CompleteRideModal() {
                     </span>
                 </p>
 
-                <button className='bg-red-500 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={completeRide}>
+                <button className='bg-green-600 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={completeRide}>
                     Complete Ride
                 </button>
             </section>

@@ -3,7 +3,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 const initialState = {
     showAcceptRideModal: false,
     showCancelRideModal: false,
-    showCompleteRideModal: false
+    showCompleteRideModal: false,
+    showRidesBadge: true
 }
 
 export const AcceptRideSlice = createSlice({
@@ -20,9 +21,13 @@ export const AcceptRideSlice = createSlice({
 
         setShowCompleteRideModal: (state, action: PayloadAction<boolean>) => {
             state.showCompleteRideModal = action.payload;
+        },
+
+        setShowRidesBadge: (state, action: PayloadAction<boolean>) => {
+            state.showRidesBadge = action.payload;
         }
     }
 })
 
-export const { setShowAcceptRideModal, setShowCancelRideModal, setShowCompleteRideModal } = AcceptRideSlice.actions;
+export const { setShowAcceptRideModal, setShowCancelRideModal, setShowCompleteRideModal, setShowRidesBadge } = AcceptRideSlice.actions;
 export default AcceptRideSlice.reducer;

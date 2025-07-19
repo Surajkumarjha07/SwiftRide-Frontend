@@ -22,10 +22,10 @@ import AcceptRideModal from '../components/acceptRideModal';
 import RidesBadge from '../components/ridesBadge';
 import { setRole, setUserEmail, setUserId, setUserName, setVehicleNo, setVehicleType } from '../redux/slices/userCredentials';
 import RidesList from '../components/ridesList';
-import { setRideData, setRides, setRidesMap } from '../redux/slices/rides';
+import { setRideData, addRide, setRidesMap } from '../redux/slices/rides';
 import { toast } from 'react-toastify';
 import CancelRideModal from '../components/cancelRideModal';
-import { setShowCancelRideModal } from '../redux/slices/rideOptions';
+import { setShowCancelRideModal, setShowCompleteRideModal, setShowRidesBadge } from '../redux/slices/rideOptions';
 import CompleteRideModal from '../components/rideCompleted';
 import PaymentModal from '../components/paymentModal';
 import { setShowPaymentsModal } from '../redux/slices/payments';
@@ -68,49 +68,52 @@ export default function UserHomePage() {
         }
     }
 
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                console.log(latitude, longitude);
+    // useEffect(() => {
+    //     const interval = setInterval(async () => {
+    //         navigator.geolocation.getCurrentPosition(async (pos) => {
+    //             const { latitude, longitude } = pos.coords;
+    //             console.log(latitude, longitude);
 
-                dispatch(setLocationCoordinates({ latitude, longitude }));
+    //             dispatch(setLocationCoordinates({ latitude, longitude }));
 
-                let url: string = role === "user" ? "http://localhost:4000/location-update/user" : "http://localhost:4000/location-update/captain";
+    //             let url: string = role === "user" ? "http://localhost:4000/location-update/user" : "http://localhost:4000/location-update/captain";
 
-                if (cookie && latitude && longitude && typeof latitude === "number" && typeof longitude === "number") {
-                    const response = await axios.post(url,
-                        {
-                            coordinates
-                        },
-                        {
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${cookie}`
-                            },
-                            withCredentials: true
-                        }
-                    );
+    //             if (cookie && latitude && longitude && typeof latitude === "number" && typeof longitude === "number") {
+    //                 const response = await axios.post(url,
+    //                     {
+    //                         coordinates: {
+    //                             latitude: coordinates.latitude.toFixed(3),
+    //                             longitude: coordinates.longitude.toFixed(3)
+    //                         }
+    //                     },
+    //                     {
+    //                         headers: {
+    //                             "Content-Type": "application/json",
+    //                             Authorization: `Bearer ${cookie}`
+    //                         },
+    //                         withCredentials: true
+    //                     }
+    //                 );
 
-                    console.log("loc response: ", response);
-                }
+    //                 console.log("loc response: ", response);
+    //             }
 
-            },
-                () => {
-                    console.log("error in getting current location!");
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 3000,
-                    maximumAge: 0
-                });
+    //         },
+    //             () => {
+    //                 console.log("error in getting current location!");
+    //             },
+    //             {
+    //                 enableHighAccuracy: true,
+    //                 timeout: 3000,
+    //                 maximumAge: 0
+    //             });
 
-        }, 5 * 1000);
+    //     }, 5 * 1000);
 
-        return () => {
-            clearInterval(interval);
-        }
-    }, [role, cookie, coordinates]);
+    //     return () => {
+    //         clearInterval(interval);
+    //     }
+    // }, [role, cookie, coordinates]);
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -198,7 +201,7 @@ export default function UserHomePage() {
         console.log("accept-ride: ", captain, rideData);
         const { pickUpLocation, rideId } = rideData as any;
 
-        dispatch(setRides({ rideId, pickUpLocation }));
+        dispatch(addRide({ rideId, pickUpLocation }));
         dispatch(setRidesMap({ rideId, rideData }));
 
     }
@@ -229,7 +232,6 @@ export default function UserHomePage() {
         });
 
         dispatch(setShowCancelRideModal(true));
-
     }
 
     const handlePaymentRequest = ({ rideData }: any) => {
@@ -237,7 +239,18 @@ export default function UserHomePage() {
 
         dispatch(setRideData(rideData));
         dispatch(setShowPaymentsModal(true));
+    }
 
+    const handleRideCancelled = ({ rideData }: any) => {
+        toast.error("Ride cancelled by user!", {
+            type: "error",
+            hideProgressBar: true,
+            autoClose: 1500,
+            position: "top-center"
+        });
+
+        dispatch(setShowCompleteRideModal(false));
+        dispatch(setShowRidesBadge(true));
     }
 
     useEffect(() => {
@@ -247,6 +260,7 @@ export default function UserHomePage() {
             socket.on("no-captain-found", handleCaptainNotFound);
             socket.on("ride-confirmed", handleRideConfirmed);
             socket.on("payment-request", handlePaymentRequest);
+            socket.on("ride-cancelled", handleRideCancelled);
         }
 
         return () => {
@@ -256,6 +270,7 @@ export default function UserHomePage() {
                 socket.off("no-captain-found", handleCaptainNotFound);
                 socket.off("ride-confirmed", handleRideConfirmed);
                 socket.off("payment-request", handlePaymentRequest);
+                socket.off("ride-cancelled", handleRideCancelled);
             }
         }
     }, [socket])

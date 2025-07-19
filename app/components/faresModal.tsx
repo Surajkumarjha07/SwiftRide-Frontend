@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowFare } from '../redux/slices/showFare';
 import axios from 'axios';
@@ -18,22 +18,60 @@ export default function FaresModal({ fares }: any) {
     e.preventDefault();
     console.log(vehicle + " " + price);
 
-    const response = await axios.post('http://localhost:4000/user/rides/confirm-ride', {
-      vehicle,
-      fare: price
-    },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${cookie}`
-        },
-        withCredentials: true
-      }
-    );
+    try {
+      const response = await axios.post('http://localhost:4000/user/rides/confirm-ride', {
+        vehicle,
+        fare: price
+      },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookie}`
+          },
+          withCredentials: true
+        }
+      );
 
-    if (response.status === 200) {
-      console.log("working");
-      dispatch(setShowFare(false));
+      if (response.status === 200) {
+        console.log("working");
+        dispatch(setShowFare(false));
+
+        setTimeout(async () => {
+          console.log("inside timeout");
+
+          const response = await axios.post("http://localhost:4000/user/rides/captain-not-assigned", {},
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${cookie}`
+              },
+              withCredentials: true,
+              validateStatus: (status) => true
+            }
+          )
+
+          console.log("response: ", response);
+
+          if (response.status === 204) {
+            toast.error("No captain assigned! Try again", {
+              type: "error",
+              hideProgressBar: true,
+              autoClose: 1500,
+              position: "top-center"
+            });
+          }
+
+        }, 30 * 1000);
+
+      }
+
+    } catch (error) {
+      toast.error("Try again in some time!", {
+        type: "error",
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: "top-center"
+      });
     }
 
   }

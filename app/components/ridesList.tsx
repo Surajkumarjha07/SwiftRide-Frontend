@@ -19,16 +19,16 @@ export default function RidesList({ rides }: { rides: rideType[] }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.3 }}
-                                className={`px-2 py-3 rounded-xl ${showRidesList ? "bg-gray-900/10 backdrop-blur-sm" : ""}`}>
+                                className={`p-1 rounded-xl ridesList ${showRidesList ? "bg-gray-900/10 backdrop-blur-sm" : ""}`}>
 
-                                <div className='bg-white w-80 max-h-96 rounded-xl overflow-hidden space-y-3'>
-                                    <div className='px-3 py-4 border-b-2 border-b-gray-500'>
+                                <div className='bg-white w-80 max-h-96 rounded-xl flex flex-col'>
+                                    <div className='px-3 py-4 border-b-2 border-b-gray-500 flex-1'>
                                         <h1 className='text-gray-900 font-semibold text-xl'>
                                             Ride requests
                                         </h1>
                                     </div>
 
-                                    <div className='space-y-3 px-2 my-4'>
+                                    <div className='space-y-3 px-2 py-3 overflow-y-scroll flex-1'>
                                         {
                                             rides.length > 0 ?
                                                 rides.map((ride, index) => (

@@ -34,8 +34,8 @@ export default function Map({ position, destination, zoom }: mapProps) {
                     </Marker>
 
                     {
-                        destination &&
-                        <Routingmachine source={position} destination={{ latitude: destination.latitude, longitude: destination.longitude }} />
+                        (destination && Object.keys(destination).length !== 0 && typeof destination.latitude === "number" && typeof destination.longitude === "number") &&
+                        <Routingmachine source={position} destination={destination} />
                     }
                 </MapContainer>
             }
