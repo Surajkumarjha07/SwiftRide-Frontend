@@ -31,6 +31,8 @@ import PaymentModal from '../components/paymentModal';
 import { setShowPaymentsModal } from '../redux/slices/payments';
 import { setLocationCoordinates } from '../redux/slices/locationCoordinates';
 import axios from 'axios';
+import ChatModal from '../components/chatModal';
+import ChatBadge from '../components/chatBadge';
 
 export default function UserHomePage() {
     const dispatch = useAppDispatch();
@@ -232,6 +234,7 @@ export default function UserHomePage() {
         });
 
         dispatch(setShowCancelRideModal(true));
+        dispatch(setRideData(rideData));
     }
 
     const handlePaymentRequest = ({ rideData }: any) => {
@@ -253,6 +256,18 @@ export default function UserHomePage() {
         dispatch(setShowRidesBadge(true));
     }
 
+    const handlePaymentProcessed = ({ fare, payment_id, orderId, order, userId, rideId, captainId }: any) => {
+        toast.success("Payment processed!", {
+            type: "success",
+            hideProgressBar: true,
+            autoClose: 1500,
+            position: "top-center"
+        });
+
+        dispatch(setShowCompleteRideModal(false));
+        dispatch(setShowRidesBadge(true));
+    }
+
     useEffect(() => {
         if (socket) {
             socket.on("fare-fetched", handleFareFetched)
@@ -261,6 +276,7 @@ export default function UserHomePage() {
             socket.on("ride-confirmed", handleRideConfirmed);
             socket.on("payment-request", handlePaymentRequest);
             socket.on("ride-cancelled", handleRideCancelled);
+            socket.on("payment-processed", handlePaymentProcessed);
         }
 
         return () => {
@@ -271,6 +287,7 @@ export default function UserHomePage() {
                 socket.off("ride-confirmed", handleRideConfirmed);
                 socket.off("payment-request", handlePaymentRequest);
                 socket.off("ride-cancelled", handleRideCancelled);
+                socket.off("payment-processed", handlePaymentProcessed);
             }
         }
     }, [socket])
@@ -312,6 +329,13 @@ export default function UserHomePage() {
                     <AcceptRideModal />
                     <BlackScreen />
                     <PaymentModal />
+
+                    {
+                        <div className='absolute bottom-10 left-10 z-50 flex flex-col justify-center items-start gap-4'>
+                            <ChatModal />
+                            <ChatBadge />
+                        </div>
+                    }
 
                     {
                         showFare &&

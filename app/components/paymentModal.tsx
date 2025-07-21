@@ -30,7 +30,7 @@ export default function PaymentModal() {
     const payNow = async (e: React.MouseEvent) => {
         e.preventDefault();
         console.log("rideData: ", rideData);
-        
+
 
         try {
             const res = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js')
@@ -43,14 +43,16 @@ export default function PaymentModal() {
             const data = await axios.post("http://localhost:4000/payment/orders/create-order",
                 {
                     fare: rideData.fare,
-                    userId,
                     rideId: rideData.rideId,
                     captainId: rideData.captainId
                 },
                 {
                     headers: {
-                        "Content-Type": "application/json"
-                    }
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${cookie}`
+                    },
+                    withCredentials: true,
+                    validateStatus: status => true
                 }
             )
                 .then((response: AxiosResponse) => response.data);
@@ -78,23 +80,42 @@ export default function PaymentModal() {
                     const signature = response.razorpay_signature;
                     const order = data.order;
 
-                    const res = await fetch('http://localhost:4000/user/rides/payment', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ fare: rideData.fare, payment_id, orderId: data.razorpay_order.id, order, userId, rideId: rideData.rideId, captainId: rideData.captainId })
-                    });
+                    // const res = await fetch('http://localhost:4000/user/rides/payment', {
+                    //     method: "POST",
+                    //     headers: {
+                    //         'Content-Type': 'application/json'
+                    //     },
+                    //     body: JSON.stringify({ fare: rideData.fare, payment_id, orderId: data.razorpay_order.id, order, userId, rideId: rideData.rideId, captainId: rideData.captainId })
+                    // });
 
-                    if (!res.ok) {
-                        alert("Error in initiating payment!");
-                        throw new Error(`Error in initiating payment!`);
-                    }
-                    
-                    else {
+                    const res = await axios.post("http://localhost:4000/user/rides/payment",
+                        {
+                            fare: rideData.fare,
+                            payment_id,
+                            orderId: data.razorpay_order.id,
+                            order,
+                            rideId: rideData.rideId,
+                            captainId: rideData.captainId
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${cookie}`
+                            },
+                            withCredentials: true,
+                            validateStatus: status => true
+                        }
+                    )
+
+                    if (res.status === 200) {
                         dispatch(setShowPaymentsModal(false));
                         dispatch(setShowCancelRideModal(false));
                         alert("Payment successful!");
+                    }
+
+                    else {
+                        alert("Error in initiating payment!");
+                        throw new Error(`Error in initiating payment!`);
                     }
                 },
             }
