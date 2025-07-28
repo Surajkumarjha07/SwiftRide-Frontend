@@ -5,28 +5,25 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import logOutUser from '../services/logOut.service';
 
 export default function Profile() {
     const dispatch = useAppDispatch();
     const userName = useAppSelector(state => state.User.userName);
     const userEmail = useAppSelector(state => state.User.userEmail);
     const role = useAppSelector(state => state.User.role);
+    const cookie = useAppSelector(state => state.Cookie.cookie);
     const router = useRouter();
 
     async function signOut(e: React.MouseEvent) {
         e.preventDefault();
 
-        try {
-            const url = role === "user"
-                ? "http://localhost:4000/user/actions/logout"
-                : "http://localhost:4000/captain/actions/logout";
+        if (!role || !cookie) {
+            throw new Error("Missing authentication details");
+        }
 
-            const response = await axios.post(url, {}, {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                withCredentials: true
-            });
+        try {
+            const response = await logOutUser(role, cookie);
 
             if (response.status === 200) {
                 Cookies.remove("authtoken");
@@ -34,7 +31,7 @@ export default function Profile() {
             }
 
         } catch (error) {
-            toast.error("Internal server error!", {
+            toast.error((error as Error).message, {
                 type: "error",
                 hideProgressBar: true,
                 autoClose: 1500,

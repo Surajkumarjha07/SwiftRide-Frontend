@@ -4,7 +4,12 @@ import L from "leaflet";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 
-export default function Routingmachine({ source, destination }: any) {
+type RoutingMachineProps = {
+    source: { latitude: number, longitude: number },
+    destination: { latitude: number, longitude: number },
+}
+
+export default function Routingmachine({ source, destination }: RoutingMachineProps) {
     const map = useMap();
 
     useEffect(() => {
@@ -14,7 +19,7 @@ export default function Routingmachine({ source, destination }: any) {
 
         const timeout = setTimeout(() => {
             routingControl = L.Routing.control({
-                waypoints: [L.latLng(source[0], source[1]), L.latLng(destination[0], destination[1])],
+                waypoints: [L.latLng(source.latitude, source.longitude), L.latLng(destination.latitude, destination.longitude)],
                 routeWhileDragging: false,
                 show: false,
             }).addTo(map);

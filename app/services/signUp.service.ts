@@ -1,22 +1,26 @@
+import axios from "axios";
 
-async function signUpService(formBody: Record<string, any>, role: string) {
+async function signUpService(formBody: Record<string, any>) {
     try {
-        const url = role === "user" ? "http://localhost:4000/user/actions/sign-up" : "http://localhost:4000/captain/actions/registerCaptain";
+        const url = formBody.role === "user"
+            ? "http://localhost:4000/user/actions/sign-up"
+            : "http://localhost:4000/captain/actions/registerCaptain";
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formBody)
-        })
+        const response = await axios.post(url,
+            formBody
+            ,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                validateStatus: status => true
+            }
+        );
 
-        const data = await response.json();
-
-        return { response, data };
+        return response;
 
     } catch (error) {
-        throw new Error("Internal server error!");
+        throw new Error((error as Error).message);
     }
 }
 

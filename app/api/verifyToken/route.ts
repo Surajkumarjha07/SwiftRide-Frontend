@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'User not verified!' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Authorized', user: decoded });
+        return NextResponse.json({ message: 'Authorized', user: decoded, });
 
     } catch (err) {
         return NextResponse.json({ message: 'Error in validating token!' }, { status: 403 });

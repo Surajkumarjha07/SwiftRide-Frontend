@@ -1,25 +1,27 @@
+import axios from "axios";
 
-async function logInService(formBody: Record<string, any>, role: string) {
+async function logInService(formBody: Record<string, any>) {
     try {
-        const url = role === "user"
+        const url = formBody.role === "user"
             ? "http://localhost:4000/user/actions/log-in"
             : "http://localhost:4000/captain/actions/loginCaptain";
 
-        const response = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formBody),
-        });
+        const response = await axios.post(url,
+            formBody
+            ,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true,
+                validateStatus: status => true
+            }
+        )
 
-        const data = await response.json();
-
-        return { response, data };
+        return response;
 
     } catch (error) {
-        throw new Error("Internal server error!");
+        throw new Error((error as Error).message);
     }
 }
 

@@ -6,10 +6,10 @@ export async function middleware(request: NextRequest) {
     if (!token) {
         return NextResponse.redirect(new URL("/logIn", request.url));
     }
-    
+
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/home", "/manage-account"]
+    matcher: ["/home", "/manage-account", "/vehicle-verification"]
 }

@@ -1,6 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 const initialState = {
+    userId: "",
     userName: "",
     userEmail: "",
     role: "",
@@ -12,6 +13,10 @@ export const UserSlice = createSlice({
     initialState,
     name: "User",
     reducers: {
+        setUserId: (state, action: PayloadAction<string>) => {
+            state.userId = action.payload;
+        },
+
         setUserName: (state, action) => {
             state.userName = action.payload;
         },
@@ -35,5 +40,5 @@ export const UserSlice = createSlice({
     }
 })
 
-export const { setUserEmail, setUserName, setRole, setVehicleType, setVehicleNo } = UserSlice.actions;
+export const { setUserId, setUserEmail, setUserName, setRole, setVehicleType, setVehicleNo } = UserSlice.actions;
 export default UserSlice.reducer;

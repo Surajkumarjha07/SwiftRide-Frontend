@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 const initialState = {
-    showPaymentsModal: true
+    showPaymentsModal: false
 }
 
 export const PaymentSlice = createSlice({

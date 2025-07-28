@@ -1,39 +1,65 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowFare } from '../redux/slices/showFare';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import confirmRide from '../services/confirmRide.service';
+import captainNotAssigned from '../services/captainNotAssigned.service';
+import unConfirmedRide from '../services/unConfirmedRide.service';
 
 export default function FaresModal({ fares }: any) {
   const dispatch = useAppDispatch();
   const cookie = useAppSelector(state => state.Cookie.cookie);
 
-  const cancelRide = (e: React.MouseEvent) => {
+  const handleUnConfirmedRide = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    dispatch(setShowFare(false));
+    const response = await unConfirmedRide(cookie);
+
+    if (response.status === 200) {
+      dispatch(setShowFare(false));
+    }
+
   }
 
-  const confirmRide = async (e: React.MouseEvent, vehicle: string, price: number) => {
+  const handleConfirmRide = async (e: React.MouseEvent, vehicle: string, price: number) => {
     e.preventDefault();
     console.log(vehicle + " " + price);
 
-    const response = await axios.post('http://localhost:4000/user/rides/confirm-ride', {
-      vehicle,
-      fare: price
-    },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${cookie}`
-        },
-        withCredentials: true
-      }
-    );
+    try {
+      const response = await confirmRide(vehicle, price, cookie);
 
-    if (response.status === 200) {
-      console.log("working");
-      dispatch(setShowFare(false));
+      if (response.status === 200) {
+        console.log("working");
+        dispatch(setShowFare(false));
+
+        setTimeout(async () => {
+          console.log("inside timeout");
+
+          const response = await captainNotAssigned(cookie);
+
+          console.log("response: ", response);
+
+          if (response.status === 204) {
+            toast.error("No captain assigned! Try again", {
+              type: "error",
+              hideProgressBar: true,
+              autoClose: 1500,
+              position: "top-center"
+            });
+          }
+
+        }, 30 * 1000);
+
+      }
+
+    } catch (error) {
+      toast.error("Try again in some time!", {
+        type: "error",
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: "top-center"
+      });
     }
 
   }
@@ -56,7 +82,7 @@ export default function FaresModal({ fares }: any) {
                 <p className='font-medium text-lg'> {vehicle.charAt(0).toUpperCase() + vehicle.slice(1)} </p>
                 <p className='font-medium text-sm text-gray-700'> <span> ₹ </span> {price} </p>
               </div>
-              <button className='text-white font-normal bg-gray-900 px-4 py-2 rounded-md cursor-pointer' onClick={e => confirmRide(e, vehicle, price)}>
+              <button className='text-white font-normal bg-gray-900 px-4 py-2 rounded-md cursor-pointer' onClick={e => handleConfirmRide(e, vehicle, price)}>
                 Confirm
               </button>
             </div>
@@ -65,7 +91,7 @@ export default function FaresModal({ fares }: any) {
 
 
         <div className='px-8 border-t'>
-          <button className='text-white w-full font-normal bg-red-500 px-4 py-2 block mx-auto rounded-md my-4 cursor-pointer' onClick={e => cancelRide(e)}>
+          <button className='text-white w-full font-normal bg-red-500 px-4 py-2 block mx-auto rounded-md my-4 cursor-pointer' onClick={handleUnConfirmedRide}>
             Cancel
           </button>
         </div>
