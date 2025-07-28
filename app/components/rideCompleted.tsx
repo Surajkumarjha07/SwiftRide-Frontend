@@ -2,27 +2,17 @@ import axios from 'axios';
 import React from 'react'
 import { toast } from 'react-toastify';
 import { useAppSelector } from '../redux/hooks';
+import completeRide from '../services/completeRide.service';
 
 export default function CompleteRideModal() {
     const cookie = useAppSelector(state => state.Cookie.cookie);
     const rideId = useAppSelector(state => state.Rides.rideId);
 
-    const completeRide = async (e: React.MouseEvent) => {
+    const handleCompleteRide = async (e: React.MouseEvent) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:4000/captain/rides/rideCompleted",
-                {
-                    rideId
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${cookie}`
-                    },
-                    withCredentials: true
-                }
-            );
+            const response = await completeRide(rideId, cookie);
 
             if (response.status === 200) {
                 toast.success("Ride completed!", {
@@ -54,7 +44,7 @@ export default function CompleteRideModal() {
                     </span>
                 </p>
 
-                <button className='bg-green-600 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={completeRide}>
+                <button className='bg-green-600 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={handleCompleteRide}>
                     Complete Ride
                 </button>
             </section>

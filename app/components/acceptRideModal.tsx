@@ -6,6 +6,10 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { clearRides, deleteRide } from '../redux/slices/rides';
 import { setShowRidesList } from '../redux/slices/ridesList';
+import { setDestinationCoordinates } from '../redux/slices/locationCoordinates';
+import getCoordinates from '../lib/getCoordinates';
+import { setDestination } from '../redux/slices/locationDetails';
+import acceptRide from '../services/acceptRide.service';
 
 const RideDetail = ({ label, value }: { label: string, value?: string }) => (
     <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
@@ -27,21 +31,7 @@ export default function AcceptRideModal() {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:4000/captain/rides/acceptRide", {
-                rideId,
-                vehicle,
-                vehicle_number
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${cookie}`
-                },
-                withCredentials: true,
-                validateStatus: (status) => true
-            });
-
-            console.log("res: ", response);
-
+            const response = await acceptRide(rideId, vehicle, vehicle_number, cookie);
 
             if (response.status === 200) {
                 toast.success("Ride Accepted!", {
@@ -55,17 +45,24 @@ export default function AcceptRideModal() {
                 dispatch(setShowCompleteRideModal(true));
                 dispatch(clearRides());
                 dispatch(setShowRidesBadge(false));
+                if (rideData) {
+                    dispatch(setDestination(rideData?.destination))
+                    const coordinates = await getCoordinates(rideData?.destination);
+                    dispatch(setDestinationCoordinates(coordinates));
+                }
             }
 
-            if (response.status === 410) {
+            if (response.status === 410 || response.status === 409) {
                 dispatch(deleteRide(rideId));
                 dispatch(setShowAcceptRideModal(false));
-                toast.error("Ride expired! Try another", {
-                    type: "error",
-                    hideProgressBar: true,
-                    autoClose: 1500,
-                    position: "top-center"
-                });
+                toast.error(response.status === 410 ? "Ride expired! Try another" :
+                    "Ride is already assigned to another captain!",
+                    {
+                        type: "error",
+                        hideProgressBar: true,
+                        autoClose: 1500,
+                        position: "top-center"
+                    });
             }
 
         } catch (error) {
@@ -81,19 +78,8 @@ export default function AcceptRideModal() {
     const handleRejectRide = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        try {
-            dispatch(setShowAcceptRideModal(false));
-            dispatch(deleteRide(rideId));
-
-        } catch (error) {
-            toast.error("Internal server error!", {
-                type: "error",
-                hideProgressBar: true,
-                autoClose: 1500,
-                position: "top-center"
-            })
-        }
-
+        dispatch(setShowAcceptRideModal(false));
+        dispatch(deleteRide(rideId));
     }
 
     return (

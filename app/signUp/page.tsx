@@ -36,9 +36,9 @@ export default function SignUp() {
                 return;
             }
 
-            const { response, data } = await signUpService(formBody, role);
+            const response = await signUpService(formBody);
 
-            if (response.ok) {
+            if (response.status === 201) {
                 toast.success("Congrats! registered successfully", {
                     type: "success",
                     hideProgressBar: true,
@@ -51,7 +51,7 @@ export default function SignUp() {
             }
 
             else {
-                toast.error(data.message, {
+                toast.error(response.data.message, {
                     type: "error",
                     hideProgressBar: true,
                     autoClose: 1500,

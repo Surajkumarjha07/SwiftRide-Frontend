@@ -1,26 +1,19 @@
 import axios from 'axios'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
+import cancelRide from '../services/cancelRide.service';
 
 export default function CancelRideModal() {
     const cookie = useAppSelector(state => state.Cookie.cookie);
     const dispatch = useAppDispatch();
 
-    const cancelRide = async (e: React.MouseEvent) => {
+    const handleCancelRide = async (e: React.MouseEvent) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:4000/user/rides/cancel-ride", {},
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${cookie}`
-                    },
-                    withCredentials: true
-                }
-            )
+            const response = await cancelRide(cookie);
 
             if (response.status === 200) {
                 toast.success("Ride Cancelled!", {
@@ -54,7 +47,7 @@ export default function CancelRideModal() {
                     </span>
                 </p>
 
-                <button className='bg-red-500 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={cancelRide}>
+                <button className='bg-red-500 px-4 py-2 text-white rounded-md text-sm cursor-pointer' onClick={handleCancelRide}>
                     Cancel Ride
                 </button>
             </section>

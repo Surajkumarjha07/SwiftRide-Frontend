@@ -30,7 +30,6 @@ export default function RidesBadge() {
 
   }, [])
 
-
   return (
     <>
       <div className={`${showRidesBadge ? "visible" : "hidden"} relative z-30 bg-white shadow-lg rounded-xl px-3 py-2 w-fit flex gap-4 items-center cursor-pointer ridesBadge`}>

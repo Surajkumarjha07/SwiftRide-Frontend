@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 import Cookies from "js-cookie";
-import { useAppDispatch } from '../redux/hooks';
 import logInService from '../services/logIn.service';
 
 export default function LogIn() {
@@ -14,7 +13,6 @@ export default function LogIn() {
     const [password, setPassword] = useState<string>("");
     const router = useRouter();
     const [submitClicked, setSubmitClicked] = useState<boolean>(false);
-    const dispatch = useAppDispatch();
 
     const changeLogInType = (e: React.MouseEvent, type: string) => {
         e.preventDefault();
@@ -41,12 +39,11 @@ export default function LogIn() {
             const formData = new FormData(target);
             formData.append("role", role);
             const formBody = Object.fromEntries(formData.entries());
-            console.log(formBody);
 
-            const { response, data } = await logInService(formBody, role);
+            const response = await logInService(formBody);
 
-            if (response.ok) {
-                Cookies.set("authtoken", data.token, { expires: 1 / 24, path: "/" });
+            if (response.status === 200) {
+                Cookies.set("authtoken", response.data.token, { expires: 1 / 24, path: "/" });
                 toast.success("Congrats! Logged In", {
                     type: "success",
                     hideProgressBar: true,
@@ -59,7 +56,7 @@ export default function LogIn() {
             }
 
             else {
-                toast.error(data.message, {
+                toast.error(response.data.message, {
                     type: "error",
                     hideProgressBar: true,
                     autoClose: 1500,
@@ -67,7 +64,7 @@ export default function LogIn() {
                 })
                 setSubmitClicked(false);
             }
-            
+
         } catch (error) {
             toast.error("Internal server error!", {
                 type: "error",

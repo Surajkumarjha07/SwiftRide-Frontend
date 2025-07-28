@@ -7,6 +7,7 @@ import { setDestination, setLocation } from '../redux/slices/locationDetails';
 import getCurrentLocation from '../lib/getCurrentLocation';
 import getCoordinates from '../lib/getCoordinates';
 import { setDestinationCoordinates } from '../redux/slices/locationCoordinates';
+import findRide from '../services/findRide.service';
 
 export default memo(function SearchBar({ coordinates }: { coordinates: { latitude: number, longitude: number } }) {
   const [availableLocation, setAvailableLocation] = useState([]);
@@ -74,7 +75,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
   }
 
-  const findRide = async (e: React.MouseEvent) => {
+  const handleFindRide = async (e: React.MouseEvent) => {
     e.preventDefault();
 
     if (!location || !destination) {
@@ -96,18 +97,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
     lastCalled = now;
 
     try {
-      const response = await axios.post(`http://localhost:4000/user/rides/ride-request`, {
-        location,
-        destination
-      },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cookie}`
-          },
-          withCredentials: true
-        }
-      );
+      const response = await findRide(location, destination, cookie);
 
       if (response.status === 200) {
         console.log("response: ", response);
@@ -165,7 +155,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
             </div>
 
-            <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={showCancelRideModal} onClick={findRide}>
+            <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={showCancelRideModal} onClick={handleFindRide}>
 
               {
                 !showLoading ?

@@ -6,6 +6,8 @@ import axios, { AxiosResponse } from 'axios';
 import loadRazorpayScript from '../lib/razorpayScript';
 import { setShowPaymentsModal } from '../redux/slices/payments';
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
+import createPaymentOrder from '../services/createPaymentOrder.service';
+import paymentDone from '../services/payment.service';
 
 const RideDetail = ({ label, value }: { label: string, value?: string }) => (
     <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
@@ -30,30 +32,9 @@ export default function PaymentModal() {
     const payNow = async (e: React.MouseEvent) => {
         e.preventDefault();
         console.log("rideData: ", rideData);
-        
 
         try {
-            const res = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js')
-
-            if (!res) {
-                alert('Razropay failed to load!!')
-                return
-            }
-
-            const data = await axios.post("http://localhost:4000/payment/orders/create-order",
-                {
-                    fare: rideData.fare,
-                    userId,
-                    rideId: rideData.rideId,
-                    captainId: rideData.captainId
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }
-            )
-                .then((response: AxiosResponse) => response.data);
+            const data = await createPaymentOrder(rideData, cookie);
 
             console.log("payment response: ", data);
 
@@ -78,23 +59,22 @@ export default function PaymentModal() {
                     const signature = response.razorpay_signature;
                     const order = data.order;
 
-                    const res = await fetch('http://localhost:4000/user/rides/payment', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ fare: rideData.fare, payment_id, orderId: data.razorpay_order.id, order, userId, rideId: rideData.rideId, captainId: rideData.captainId })
-                    });
+                    const res = await paymentDone(rideData, data, payment_id, order, cookie);
 
-                    if (!res.ok) {
-                        alert("Error in initiating payment!");
-                        throw new Error(`Error in initiating payment!`);
-                    }
-                    
-                    else {
+                    if (res.status === 200) {
                         dispatch(setShowPaymentsModal(false));
                         dispatch(setShowCancelRideModal(false));
-                        alert("Payment successful!");
+                        toast.success("Payment successful!", {
+                            type: "success",
+                            hideProgressBar: true,
+                            autoClose: 1500,
+                            position: "top-center"
+                        });
+                    }
+
+                    else {
+                        alert("Error in initiating payment!");
+                        throw new Error(`Error in initiating payment!`);
                     }
                 },
             }
@@ -128,9 +108,9 @@ export default function PaymentModal() {
                         {
                             rideData && (
                                 <>
-                                    <RideDetail label='Ride ID' value={'djhdjhfjdkkkkkkk464_dfkjkd8789'} />
-                                    <RideDetail label='Pick Up Location' value={'Dabua colony, faridabd, haryana'} />
-                                    <RideDetail label='Destination' value={'mumbai, daraganj road, navi mumbai, maharashtra'} />
+                                    <RideDetail label='Ride ID' value={rideData?.rideId} />
+                                    <RideDetail label='Pick Up Location' value={rideData?.pickUpLocation} />
+                                    <RideDetail label='Destination' value={rideData.destination} />
                                 </>
                             )
                         }

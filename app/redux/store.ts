@@ -10,6 +10,8 @@ import RidesReducer from "./slices/rides";
 import PaymentsReducer from "./slices/payments";
 import LocationDetailsReducer from "./slices/locationDetails";
 import LocationCoordinatesReducer from "./slices/locationCoordinates";
+import ChatReducer from "./slices/chat";
+import ShowContentReducer from "./slices/showContent";
 
 export const store = configureStore({
     reducer: {
@@ -23,7 +25,9 @@ export const store = configureStore({
         Rides: RidesReducer,
         Payments: PaymentsReducer,
         LocationDetails: LocationDetailsReducer,
-        LocationCoordinates: LocationCoordinatesReducer
+        LocationCoordinates: LocationCoordinatesReducer,
+        Chat: ChatReducer,
+        ContentVisibility: ShowContentReducer
     }
 });
 

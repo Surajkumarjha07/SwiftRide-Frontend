@@ -7,7 +7,6 @@ import { setRideData, setRideId } from '../redux/slices/rides';
 export default function RideTag({ ride }: { ride: rideType }) {
   const dispatch = useAppDispatch();
   const ridesMap = useAppSelector(state => state.Rides.ridesMap);
-  const rideId = useAppSelector(state => state.Rides.rideId);
 
   const openAcceptRide = (e: React.MouseEvent) => {
     e.preventDefault();
