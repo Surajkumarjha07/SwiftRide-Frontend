@@ -1,13 +1,16 @@
 import { useAppDispatch } from './redux/hooks';
 import { setFare, setShowFare } from './redux/slices/showFare';
-import { addRide, setRideData, setRidesMap } from './redux/slices/rides';
+import { addRide, setRideData, setRideId, setRidesMap } from './redux/slices/rides';
 import { toast } from 'react-toastify';
 import { setShowCancelRideModal, setShowCompleteRideModal, setShowRidesBadge } from './redux/slices/rideOptions';
 import { setShowPaymentsModal } from './redux/slices/payments';
+import { useSocket } from './contexts/socketContext';
+import { setShowChatBadge } from './redux/slices/chat';
 
 export default function SocketHandlers() {
     const dispatch = useAppDispatch();
     let timeoutId: NodeJS.Timeout | undefined = undefined;
+    const socket = useSocket();
 
     const handleFareFetched = ({ userId, fareDetails }: { userId: string, fareDetails: number }) => {
         console.log("fareDetails: ", fareDetails);
@@ -56,8 +59,21 @@ export default function SocketHandlers() {
             position: "top-center"
         });
 
+        dispatch(setShowChatBadge(true));
+
         dispatch(setShowCancelRideModal(true));
-        dispatch(setRideData(rideData));
+        if (rideData) {
+            dispatch(setRideData(rideData));
+            dispatch(setRideId(rideData.rideId));
+        }
+
+        if (socket && rideData) {
+            socket.emit("initiate-chat", { rideData }, (res: any) => {
+                if (res.status === "joined") {
+                    console.log("✅ User joined room:", res.roomId);
+                }
+            });
+        }
 
         if (timeoutId) clearTimeout(timeoutId);
 
@@ -83,6 +99,7 @@ export default function SocketHandlers() {
 
         dispatch(setShowCompleteRideModal(false));
         dispatch(setShowRidesBadge(true));
+        dispatch(setShowChatBadge(false));
     }
 
     const handlePaymentProcessed = ({ fare, payment_id, orderId, order, userId, rideId, captainId }: any) => {
@@ -95,6 +112,7 @@ export default function SocketHandlers() {
 
         dispatch(setShowCompleteRideModal(false));
         dispatch(setShowRidesBadge(true));
+        dispatch(setShowChatBadge(false));
     }
 
     return {

@@ -12,7 +12,6 @@ import { jwtDecode } from 'jwt-decode';
 import deleteUser from '../services/deleteUser.service';
 import updateUser from '../services/updateUser.service';
 import logOutUser from '../services/logOut.service';
-import { AxiosError } from 'axios';
 import verifyToken from '../lib/verifyToken';
 import { setShowContent } from '../redux/slices/showContent';
 

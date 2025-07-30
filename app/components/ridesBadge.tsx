@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { BikeIcon } from "lucide-react";
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowRidesList } from '../redux/slices/ridesList';
-import rideType from '../types/rideTag';
 
 export default function RidesBadge() {
   const dispatch = useAppDispatch();

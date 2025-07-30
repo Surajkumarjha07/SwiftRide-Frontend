@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { CrossIcon, Plus, SendIcon } from "lucide-react";
+import { Plus, SendIcon } from "lucide-react";
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setOpenChat } from '../redux/slices/chat';
 import { useSocket } from '../contexts/socketContext';
+import { clearMessagesToRead, increaseMessagesToRead } from '../redux/slices/messages';
 
 export default function ChatModal() {
     const [messageArr, setMessageArr] = useState<{ from: string, msg: string }[]>([]);
@@ -10,15 +11,16 @@ export default function ChatModal() {
     const dispatch = useAppDispatch();
     const isChatOpen = useAppSelector(state => state.Chat.isChatOpen);
     const userName = useAppSelector(state => state.User.userName);
-    const rideData: any = useAppSelector(state => state.Rides.rideData);
-    const role = useAppSelector(state => state.User.role);
-    const userId = useAppSelector(state => state.User.userId);
+    const rideId = useAppSelector(state => state.Rides.rideId);
     const socket = useSocket();
 
     useEffect(() => {
         if (socket) {
             const handleMessageArrived = ({ userName, message }: { userName: string, message: string }) => {
                 setMessageArr(prev => [...prev, { from: userName, msg: message }]);
+                if (!isChatOpen) {
+                    dispatch(increaseMessagesToRead());
+                }
             };
 
             socket.on("messageArrived", handleMessageArrived);
@@ -28,7 +30,7 @@ export default function ChatModal() {
             };
         }
 
-    }, [socket, messageArr]);
+    }, [socket, messageArr, isChatOpen]);
 
     const closeChatModal = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -40,16 +42,16 @@ export default function ChatModal() {
         e.preventDefault();
 
         if (socket && message !== "") {
-            let toId: string = "";
-            const fromId: string = userId;
-
-            if (rideData) {
-                toId = role === "user" ? rideData.captainId : rideData.userId;
-            }
-
-            socket.emit('message', { userName, message, fromId, toId });
+            socket.emit('message', { userName, rideId, message });
         }
         setMessage("");
+    }
+
+    const handleClearMessage = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        setMessageArr([]);
+        dispatch(clearMessagesToRead());
     }
 
     return (
@@ -59,6 +61,15 @@ export default function ChatModal() {
                 <p className={`text-gray-700 font-medium text-xl`}> Messages </p>
                 <button onClick={closeChatModal}>
                     <Plus className={`rotate-45 cursor-pointer text-gray-800`} />
+                </button>
+            </div>
+
+            <div className='text-right px-4 pb-2'>
+                <button className='inline-block bg-red-50 border-2 text-sm border-red-300 w-fit h-fit px-4 py-[2px] rounded-full cursor-pointer'
+                onClick={handleClearMessage}>
+                    <p className='text-red-500 font-bold'>
+                        Clear
+                    </p>
                 </button>
             </div>
 

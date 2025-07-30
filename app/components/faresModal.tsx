@@ -1,7 +1,6 @@
 import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowFare } from '../redux/slices/showFare';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import confirmRide from '../services/confirmRide.service';
 import captainNotAssigned from '../services/captainNotAssigned.service';

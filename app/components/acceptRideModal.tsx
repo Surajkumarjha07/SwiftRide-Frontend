@@ -1,22 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowAcceptRideModal, setShowCompleteRideModal, setShowRidesBadge } from '../redux/slices/rideOptions';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import { clearRides, deleteRide } from '../redux/slices/rides';
-import { setShowRidesList } from '../redux/slices/ridesList';
 import { setDestinationCoordinates } from '../redux/slices/locationCoordinates';
 import getCoordinates from '../lib/getCoordinates';
 import { setDestination } from '../redux/slices/locationDetails';
 import acceptRide from '../services/acceptRide.service';
-
-const RideDetail = ({ label, value }: { label: string, value?: string }) => (
-    <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
-        <p>{label}</p>
-        <p className="text-right max-w-48 text-gray-600 italic text-wrap break-words"> {value} </p>
-    </div>
-);
+import { useSocket } from '../contexts/socketContext';
+import { setShowChatBadge } from '../redux/slices/chat';
+import RideDetailLabel from './rideDetail';
 
 export default function AcceptRideModal() {
     const showAcceptRideModal = useAppSelector(state => state.RideOptions.showAcceptRideModal);
@@ -26,6 +20,7 @@ export default function AcceptRideModal() {
     const rideId: string = useAppSelector(state => state.Rides.rideId);
     const vehicle: string = useAppSelector(state => state.User.vehicleType);
     const vehicle_number: string = useAppSelector(state => state.User.vehicleNo)
+    const socket = useSocket();
 
     const rideAcceptHandler = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -45,10 +40,21 @@ export default function AcceptRideModal() {
                 dispatch(setShowCompleteRideModal(true));
                 dispatch(clearRides());
                 dispatch(setShowRidesBadge(false));
+                dispatch(setShowChatBadge(true));
+
                 if (rideData) {
                     dispatch(setDestination(rideData?.destination))
                     const coordinates = await getCoordinates(rideData?.destination);
                     dispatch(setDestinationCoordinates(coordinates));
+
+                    if (socket && rideData) {
+                        socket.emit("initiate-chat", { rideData }, (res: any) => {
+                            if (res.status === "joined") {
+                                console.log("✅ Captain joined room:", res.roomId);
+                            }
+                        }
+                        );
+                    }
                 }
             }
 
@@ -103,9 +109,9 @@ export default function AcceptRideModal() {
                         {
                             rideData && (
                                 <>
-                                    <RideDetail label='Ride ID' value={rideData?.rideId} />
-                                    <RideDetail label='Pick Up Location' value={rideData?.pickUpLocation} />
-                                    <RideDetail label='Destination' value={rideData?.destination} />
+                                    <RideDetailLabel label='Ride ID' value={rideData?.rideId} />
+                                    <RideDetailLabel label='Pick Up Location' value={rideData?.pickUpLocation} />
+                                    <RideDetailLabel label='Destination' value={rideData?.destination} />
                                 </>
                             )
                         }

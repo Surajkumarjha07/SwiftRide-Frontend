@@ -1,9 +1,9 @@
-import axios from 'axios'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
 import cancelRide from '../services/cancelRide.service';
+import { setShowChatBadge } from '../redux/slices/chat';
 
 export default function CancelRideModal() {
     const cookie = useAppSelector(state => state.Cookie.cookie);
@@ -24,6 +24,7 @@ export default function CancelRideModal() {
                 });
 
                 dispatch(setShowCancelRideModal(false));
+                dispatch(setShowChatBadge(false));
             }
 
         } catch (error) {

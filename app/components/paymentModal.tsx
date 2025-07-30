@@ -2,19 +2,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { toast } from 'react-toastify';
-import axios, { AxiosResponse } from 'axios';
-import loadRazorpayScript from '../lib/razorpayScript';
 import { setShowPaymentsModal } from '../redux/slices/payments';
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
 import createPaymentOrder from '../services/createPaymentOrder.service';
 import paymentDone from '../services/payment.service';
-
-const RideDetail = ({ label, value }: { label: string, value?: string }) => (
-    <div className="flex justify-between items-start gap-8 text-gray-800 text-sm font-medium bg-gray-100 rounded-lg px-4 py-3">
-        <p>{label}</p>
-        <p className="text-right max-w-48 text-gray-600 italic text-wrap break-words"> {value} </p>
-    </div>
-);
+import { setShowChatBadge } from '../redux/slices/chat';
+import RideDetailLabel from './rideDetail';
 
 declare global {
     interface Window {
@@ -64,6 +57,8 @@ export default function PaymentModal() {
                     if (res.status === 200) {
                         dispatch(setShowPaymentsModal(false));
                         dispatch(setShowCancelRideModal(false));
+                        dispatch(setShowChatBadge(false));
+
                         toast.success("Payment successful!", {
                             type: "success",
                             hideProgressBar: true,
@@ -108,9 +103,17 @@ export default function PaymentModal() {
                         {
                             rideData && (
                                 <>
-                                    <RideDetail label='Ride ID' value={rideData?.rideId} />
-                                    <RideDetail label='Pick Up Location' value={rideData?.pickUpLocation} />
-                                    <RideDetail label='Destination' value={rideData.destination} />
+                                    <h1 className='font-bold text-2xl text-center text-gray-800'>
+                                        <span className='text-gray-700 text-lg'>
+                                            ₹&nbsp;
+                                        </span>
+                                        {
+                                            Number(rideData.fare)
+                                        }
+                                    </h1>
+
+                                    <RideDetailLabel label='Pick Up Location' value={rideData?.pickUpLocation} />
+                                    <RideDetailLabel label='Destination' value={rideData.destination} />
                                 </>
                             )
                         }

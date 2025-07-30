@@ -12,6 +12,7 @@ import LocationDetailsReducer from "./slices/locationDetails";
 import LocationCoordinatesReducer from "./slices/locationCoordinates";
 import ChatReducer from "./slices/chat";
 import ShowContentReducer from "./slices/showContent";
+import MessagesReducer from "./slices/messages";
 
 export const store = configureStore({
     reducer: {
@@ -27,7 +28,8 @@ export const store = configureStore({
         LocationDetails: LocationDetailsReducer,
         LocationCoordinates: LocationCoordinatesReducer,
         Chat: ChatReducer,
-        ContentVisibility: ShowContentReducer
+        ContentVisibility: ShowContentReducer,
+        Messages: MessagesReducer
     }
 });
 
