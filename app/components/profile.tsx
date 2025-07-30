@@ -2,7 +2,6 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setIsProfileOpen } from '../redux/slices/profile';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import logOutUser from '../services/logOut.service';

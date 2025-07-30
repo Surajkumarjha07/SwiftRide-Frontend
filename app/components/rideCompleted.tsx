@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React from 'react'
 import { toast } from 'react-toastify';
 import { useAppSelector } from '../redux/hooks';
