@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get("authToken")?.value;
+    const pathname = request.nextUrl.pathname;
 
-    if (!token) {
-        return NextResponse.redirect(new URL("/logIn", request.url));
+    const publicURLs = ["/", "/logIn", "/signUp"];
+    const isPublicURL = publicURLs.includes(pathname);
+
+    if (!token && !isPublicURL) {
+        return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    if (token && isPublicURL) {
+        return NextResponse.redirect(new URL("/home", request.url));
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/home", "/manage-account", "/vehicle-verification"]
+    matcher: ["/", "/logIn", "/signUp", "/home", "/manage-account", "/vehicle-verification"]
 }
