@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-    const token = request.cookies.get("authToken")?.value;
+    const token = request.cookies.get("authToken")?.value || null;
     const pathname = request.nextUrl.pathname;
 
     const publicURLs = ["/", "/logIn", "/signUp"];
