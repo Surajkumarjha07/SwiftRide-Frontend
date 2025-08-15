@@ -1,8 +1,16 @@
+import chatInterface from "@/app/types/chat.type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
-const initialState = {
+interface chatState {
+    showChatBadge: boolean,
+    isChatOpen: boolean,
+    chats: chatInterface[]
+}
+
+const initialState: chatState = {
     showChatBadge: false,
-    isChatOpen: false
+    isChatOpen: false,
+    chats: []
 }
 
 export const ChatSlice = createSlice({
@@ -15,9 +23,17 @@ export const ChatSlice = createSlice({
 
         setOpenChat: (state, action: PayloadAction<boolean>) => {
             state.isChatOpen = action.payload;
+        },
+
+        setChats: (state, action: PayloadAction<chatInterface>) => {
+            state.chats.push({ from: action.payload.from, msg: action.payload.msg });
+        },
+
+        clearChats: (state) => {
+            state.chats = [];
         }
     }
 })
 
-export const { setShowChatBadge, setOpenChat } = ChatSlice.actions;
+export const { setShowChatBadge, setOpenChat, setChats, clearChats } = ChatSlice.actions;
 export default ChatSlice.reducer;

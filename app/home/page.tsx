@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo} from 'react';
+import { useEffect, useMemo } from 'react';
 import SearchBar from '../components/searchBar';
 import Profile from '../components/profile';
 import AccountCentre from '../components/accountCentre';
@@ -14,7 +14,7 @@ import FaresModal from '../components/faresModal';
 import Cookies from 'js-cookie';
 import { setCookie } from '../redux/slices/cookie';
 import { jwtDecode } from 'jwt-decode';
-import { CaptainPayload, UserPayload } from '../types/payloads';
+import { CaptainPayload, UserPayload } from '../types/payloads.type';
 import { setShowVehicleModal } from '../redux/slices/verifyVehicle';
 import AcceptRideModal from '../components/acceptRideModal';
 import RidesBadge from '../components/ridesBadge';
@@ -45,6 +45,8 @@ export default function UserHomePage() {
     const showContent = useAppSelector(state => state.ContentVisibility.showContent);
     const cookie = useAppSelector(state => state.Cookie.cookie);
     const fares = useAppSelector(state => state.Fare.fares);
+    const isInRide = useAppSelector(state => state.Rides.isInRide);
+    const rideData = useAppSelector(state => state.Rides.rideData);
     const {
         handleAcceptRide,
         handleCaptainNotFound,
@@ -52,7 +54,8 @@ export default function UserHomePage() {
         handlePaymentProcessed,
         handlePaymentRequest,
         handleRideCancelled,
-        handleRideConfirmed
+        handleRideConfirmed,
+        handleReInitiateChat
     } = SocketHandlers();
 
     const Map = useMemo(() => dynamic(
@@ -140,6 +143,13 @@ export default function UserHomePage() {
             clearInterval(interval);
         }
     }, [role, cookie, locationCoordinates]);
+
+    useEffect(() => {
+        if (socket && isInRide && rideData) {
+            handleReInitiateChat({ rideData });
+        }
+
+    }, [isInRide, socket, rideData])
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition((pos) => {

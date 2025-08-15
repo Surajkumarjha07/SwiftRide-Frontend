@@ -1,5 +1,5 @@
 import axios from "axios";
-import coords from "../types/coordinates";
+import coords from "../types/coordinates.type";
 
 async function getCurrentLocation(coordinates: coords): Promise<string> {
     let location: string = "";

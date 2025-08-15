@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UserPayload } from '@/app/types/payloads';
+import { UserPayload } from '@/app/types/payloads.type';
 import { jwtDecode } from 'jwt-decode';
 import jwt from "jsonwebtoken";
 

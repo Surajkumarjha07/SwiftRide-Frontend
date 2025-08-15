@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { Plus, SendIcon } from "lucide-react";
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { setOpenChat } from '../redux/slices/chat';
+import { clearChats, setChats, setOpenChat } from '../redux/slices/chat';
 import { useSocket } from '../contexts/socketContext';
 import { clearMessagesToRead, increaseMessagesToRead } from '../redux/slices/messages';
 
 export default function ChatModal() {
-    const [messageArr, setMessageArr] = useState<{ from: string, msg: string }[]>([]);
     const [message, setMessage] = useState("");
     const dispatch = useAppDispatch();
     const isChatOpen = useAppSelector(state => state.Chat.isChatOpen);
     const userName = useAppSelector(state => state.User.userName);
     const rideId = useAppSelector(state => state.Rides.rideId);
+    const chats = useAppSelector(state => state.Chat.chats);
     const socket = useSocket();
 
     useEffect(() => {
         if (socket) {
             const handleMessageArrived = ({ userName, message }: { userName: string, message: string }) => {
-                setMessageArr(prev => [...prev, { from: userName, msg: message }]);
+                // setMessageArr(prev => [...prev, { from: userName, msg: message }]);
+                dispatch(setChats({ from: userName, msg: message }));
                 if (!isChatOpen) {
                     dispatch(increaseMessagesToRead());
                 }
@@ -30,7 +31,7 @@ export default function ChatModal() {
             };
         }
 
-    }, [socket, messageArr, isChatOpen]);
+    }, [socket, chats, isChatOpen]);
 
     const closeChatModal = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -50,7 +51,7 @@ export default function ChatModal() {
     const handleClearMessage = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        setMessageArr([]);
+        dispatch(clearChats());
         dispatch(clearMessagesToRead());
     }
 
@@ -66,7 +67,7 @@ export default function ChatModal() {
 
             <div className='text-right px-4 pb-2'>
                 <button className='inline-block bg-red-50 border-2 text-sm border-red-300 w-fit h-fit px-4 py-[2px] rounded-full cursor-pointer'
-                onClick={handleClearMessage}>
+                    onClick={handleClearMessage}>
                     <p className='text-red-500 font-bold'>
                         Clear
                     </p>
@@ -76,8 +77,8 @@ export default function ChatModal() {
             <div className='w-full overflow-y-scroll flex-1 px-4 overflow-x-hidden'>
 
                 {
-                    messageArr.map(({ from, msg }, index) => (
-                        <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full bg-gray-100`}>
+                    chats.map(({ from, msg }, index) => (
+                        <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full bg-gray-100 break-words`}>
                             <p className='text-gray-600 text-[11px] font-semibold'> {from} </p>
                             <p className='text-gray-700 text-[13px] font-semibold mt-1'> {msg} </p>
                         </div>

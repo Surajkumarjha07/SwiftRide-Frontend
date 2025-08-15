@@ -1,6 +1,6 @@
 import { useAppDispatch } from './redux/hooks';
 import { setFare, setShowFare } from './redux/slices/showFare';
-import { addRide, setRideData, setRideId, setRidesMap } from './redux/slices/rides';
+import { addRide, setIsInRide, setRideData, setRideId, setRidesMap } from './redux/slices/rides';
 import { toast } from 'react-toastify';
 import { setShowCancelRideModal, setShowCompleteRideModal, setShowRidesBadge } from './redux/slices/rideOptions';
 import { setShowPaymentsModal } from './redux/slices/payments';
@@ -60,7 +60,7 @@ export default function SocketHandlers() {
         });
 
         dispatch(setShowChatBadge(true));
-
+        dispatch(setIsInRide(true));
         dispatch(setShowCancelRideModal(true));
         if (rideData) {
             dispatch(setRideData(rideData));
@@ -70,7 +70,7 @@ export default function SocketHandlers() {
         if (socket && rideData) {
             socket.emit("initiate-chat", { rideData }, (res: any) => {
                 if (res.status === "joined") {
-                    console.log("✅ User joined room:", res.roomId);
+                    console.log("✅ User joined room: ", res.roomId);
                 }
             });
         }
@@ -80,6 +80,16 @@ export default function SocketHandlers() {
         timeoutId = setTimeout(() => {
             dispatch(setShowCancelRideModal(false));
         }, 5 * (60 * 1000));
+    }
+
+    const handleReInitiateChat = ({ rideData }: any) => {
+        if (socket) {
+            socket.emit("initiate-chat", { rideData }, (res: any) => {
+                if (res.status === "joined") {
+                    console.log("✅ Chat Re-Initiated: ", res.roomId);
+                }
+            })
+        }
     }
 
     const handlePaymentRequest = ({ rideData }: any) => {
@@ -100,6 +110,7 @@ export default function SocketHandlers() {
         dispatch(setShowCompleteRideModal(false));
         dispatch(setShowRidesBadge(true));
         dispatch(setShowChatBadge(false));
+        dispatch(setIsInRide(false));
     }
 
     const handlePaymentProcessed = ({ fare, payment_id, orderId, order, userId, rideId, captainId }: any) => {
@@ -113,6 +124,7 @@ export default function SocketHandlers() {
         dispatch(setShowCompleteRideModal(false));
         dispatch(setShowRidesBadge(true));
         dispatch(setShowChatBadge(false));
+        dispatch(setIsInRide(false));
     }
 
     return {
@@ -121,6 +133,7 @@ export default function SocketHandlers() {
         handleRideCancelled,
         handleCaptainNotFound,
         handleAcceptRide,
+        handleReInitiateChat,
         handlePaymentRequest,
         handlePaymentProcessed,
     }
