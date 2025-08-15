@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setShowCancelRideModal } from '../redux/slices/rideOptions';
 import cancelRide from '../services/cancelRide.service';
 import { setShowChatBadge } from '../redux/slices/chat';
+import { setIsInRide } from '../redux/slices/rides';
 
 export default function CancelRideModal() {
     const cookie = useAppSelector(state => state.Cookie.cookie);
@@ -25,6 +26,7 @@ export default function CancelRideModal() {
 
                 dispatch(setShowCancelRideModal(false));
                 dispatch(setShowChatBadge(false));
+                dispatch(setIsInRide(false));
             }
 
         } catch (error) {

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import Cookies from 'js-cookie';
-import { CaptainPayload, UserPayload } from '../types/payloads';
+import { CaptainPayload, UserPayload } from '../types/payloads.type';
 import { setRole } from '../redux/slices/userCredentials';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';

@@ -19,6 +19,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
   const showCancelRideModal = useAppSelector(state => state.RideOptions.showCancelRideModal);
   const location = useAppSelector(state => state.LocationDetails.location);
   const destination = useAppSelector(state => state.LocationDetails.destination);
+  const isInRide = useAppSelector(state => state.Rides.isInRide);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export default memo(function SearchBar({ coordinates }: { coordinates: { latitud
 
             </div>
 
-            <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={showCancelRideModal} onClick={handleFindRide}>
+            <button className={`px-6 py-3 font-medium text-white ${showCancelRideModal ? "bg-gray-600" : "bg-gray-900"} rounded-md cursor-pointer`} disabled={isInRide} onClick={handleFindRide}>
 
               {
                 !showLoading ?

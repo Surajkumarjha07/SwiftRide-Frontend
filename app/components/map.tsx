@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css"
 import "leaflet-defaulticon-compatibility"
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css"
 import Routingmachine from './routingmachine'
-import coords from '../types/coordinates'
+import coords from '../types/coordinates.type'
 
 type mapProps = {
     position: coords,

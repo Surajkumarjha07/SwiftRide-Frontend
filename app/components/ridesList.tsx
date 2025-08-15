@@ -2,7 +2,7 @@ import React from 'react'
 import { useAppSelector } from '../redux/hooks'
 import { AnimatePresence, motion } from "framer-motion";
 import RideTag from './rideTag';
-import rideType from '../types/rideTag';
+import rideType from '../types/rideTag.type';
 
 export default function RidesList({ rides }: { rides: rideType[] }) {
     const showRidesList = useAppSelector(state => state.RidesList.showRidesList);

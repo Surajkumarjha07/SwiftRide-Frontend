@@ -1,4 +1,4 @@
-import coords from "@/app/types/coordinates";
+import coords from "@/app/types/coordinates.type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 const initialState = {

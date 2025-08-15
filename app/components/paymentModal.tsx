@@ -8,6 +8,7 @@ import createPaymentOrder from '../services/createPaymentOrder.service';
 import paymentDone from '../services/payment.service';
 import { setShowChatBadge } from '../redux/slices/chat';
 import RideDetailLabel from './rideDetail';
+import { setIsInRide } from '../redux/slices/rides';
 
 declare global {
     interface Window {
@@ -58,6 +59,7 @@ export default function PaymentModal() {
                         dispatch(setShowPaymentsModal(false));
                         dispatch(setShowCancelRideModal(false));
                         dispatch(setShowChatBadge(false));
+                        dispatch(setIsInRide(false));
 
                         toast.success("Payment successful!", {
                             type: "success",

@@ -3,7 +3,7 @@ import React from 'react'
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { setShowAcceptRideModal, setShowCompleteRideModal, setShowRidesBadge } from '../redux/slices/rideOptions';
 import { toast } from 'react-toastify';
-import { clearRides, deleteRide } from '../redux/slices/rides';
+import { clearRides, deleteRide, setIsInRide } from '../redux/slices/rides';
 import { setDestinationCoordinates } from '../redux/slices/locationCoordinates';
 import getCoordinates from '../lib/getCoordinates';
 import { setDestination } from '../redux/slices/locationDetails';
@@ -41,6 +41,7 @@ export default function AcceptRideModal() {
                 dispatch(clearRides());
                 dispatch(setShowRidesBadge(false));
                 dispatch(setShowChatBadge(true));
+                dispatch(setIsInRide(true));
 
                 if (rideData) {
                     dispatch(setDestination(rideData?.destination))
