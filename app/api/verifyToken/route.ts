@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message: 'Authorized', user: decoded, });
 
     } catch (err) {
+        console.log("ERROR INSIDE VERIFY TOKEN:::: ", (err as Error).message)
         return NextResponse.json({ message: 'Error in validating token!' }, { status: 403 });
     }
 }
