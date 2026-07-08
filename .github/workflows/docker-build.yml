@@ -28,3 +28,7 @@ jobs:
                 context: .
                 push: true
                 tags: surajkumarjha007/swiftride-frontend:latest
+                build-args: |
+                  NEXT_PUBLIC_LOCATION_IQ=${{ secrets.NEXT_PUBLIC_LOCATION_IQ }}
+                  NEXT_PUBLIC_RAZORPAY_KEY_ID=${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
+
