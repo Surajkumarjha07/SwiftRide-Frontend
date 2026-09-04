@@ -14,7 +14,8 @@ async function createPaymentOrder(rideData: any, cookie: string) {
             {
                 fare: rideData.fare,
                 rideId: rideData.rideId,
-                captainId: rideData.captainId
+                captainId: rideData.captainId,
+                provider: "razorpay",
             },
             {
                 headers: {
