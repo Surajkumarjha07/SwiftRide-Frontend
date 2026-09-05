@@ -53,6 +53,10 @@ export default function PaymentModal() {
                     const signature = response.razorpay_signature;
                     const order = data.order;
 
+                    console.log("PAYMENT ID::::::::: ", payment_id);
+                    console.log("PAYMENT SIGNATURE::::::::: ", signature);
+                    console.log("PAYMENT ORDER::::::::: ", order);
+
                     const res = await paymentDone(rideData, data, payment_id, order, cookie);
 
                     if (res.status === 200) {
