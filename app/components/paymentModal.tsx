@@ -36,11 +36,11 @@ export default function PaymentModal() {
 
             const options = {
                 key: razorpay_key_id,
-                amount: data.razorpay_order.amount,
-                currency: data.razorpay_order.currency,
+                amount: data.razorpayOrder.amount,
+                currency: data.razorpayOrder.currency,
                 name: 'SwiftRide.corp',
                 description: 'Test Transaction',
-                order_id: data.razorpay_order.id,
+                order_id: data.razorpayOrder.id,
                 prefill: {
                     userId: userId,
                 },
